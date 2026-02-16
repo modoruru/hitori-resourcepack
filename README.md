@@ -1,4 +1,6 @@
 # resourcepack
+[Русская версия](./README_ru.md)
+
 This repo contains resourcepack module for [hitori](https://github.com/modoruru/hitori) framework.\
 This module is basically an API for another modules. It itself contains almost no mechanics.
 ## Main features
@@ -11,7 +13,7 @@ This module is basically an API for another modules. It itself contains almost n
 - Poses (/sit, /lay, /crawl)
 
 ## Usage
-You can get a jar from [Actions](https://github.com/modoruru/hitori-resourcepack/actions) tab. Module is built almost every commit.\
+You can get a jar from [Actions](https://github.com/modoruru/hitori-resourcepack/actions) tab. Module is built almost after every commit.\
 Also, you can get module from [Releases](https://github.com/modoruru/hitori-resourcepack/releases) (if there's any).
 
 After downloading the jar, just put it into hitori folder. Then restart the server.
