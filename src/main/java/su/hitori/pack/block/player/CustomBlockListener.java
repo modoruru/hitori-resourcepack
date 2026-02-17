@@ -193,6 +193,9 @@ public final class CustomBlockListener implements Listener {
                 return;
             }
 
+            if(stack.getItemMeta().getEquippable().isSwappable())
+                Task.runEntity(player, player::updateInventory, 1L);
+
             player.swingHand(hand);
             lastActionTime.put(playerUid, now);
         }
