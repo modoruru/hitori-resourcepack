@@ -5,7 +5,8 @@ public enum NodeType {
     TEXT,
     BLOCK,
     ITEM,
-    GENERATED,
+    BONE,
+    LOCATOR,
 
     CAMERA, // third party blockbench plugin
 
