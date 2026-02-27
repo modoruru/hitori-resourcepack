@@ -63,3 +63,4 @@ dependencies {
 
 ## Special thanks
 [GSit](https://github.com/gecolay/GSit) - for poses logic reference (and some code parts)
+[Meek](https://github.com/Meekiavelique) - for Animated-Java fork with plugin-mode fixed

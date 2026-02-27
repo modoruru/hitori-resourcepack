@@ -61,4 +61,5 @@ dependencies {
 </details>
 
 ## Отдельное спасибо
-[GSit](https://github.com/gecolay/GSit) - для референса логики поз (и некоторые части кода)
+[GSit](https://github.com/gecolay/GSit) - за референс логики поз (и некоторые части кода)
+[Meek](https://github.com/Meekiavelique) - за форк Animated-Java с исправленным plugin-режимом
