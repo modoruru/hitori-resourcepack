@@ -27,6 +27,10 @@ public final class PackServer {
         this.generator = generator;
     }
 
+    public Generator generator() {
+        return generator;
+    }
+
     public void start() {
         if(server != null) return;
 
@@ -48,10 +52,8 @@ public final class PackServer {
     }
 
     public void sendPack(Player player) {
-        if(generator.isGenerating()) {
-            player.kick(Text.create("Ресурспак генерируется, перезайдите позже."));
+        if(generator.isGenerating())
             return;
-        }
 
         Optional<Pair<File, String>> pack = generator.getResult();
         assert pack.isPresent();
