@@ -1,27 +1,39 @@
 package su.hitori.pack.command;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.GreedyStringArgument;
-import dev.jorel.commandapi.arguments.IntegerArgument;
+import dev.jorel.commandapi.arguments.*;
 import dev.jorel.commandapi.executors.CommandArguments;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import su.hitori.api.registry.Registry;
 import su.hitori.api.util.Messages;
 import su.hitori.api.util.Text;
 import su.hitori.pack.BuiltInConveyors;
 import su.hitori.pack.PackModule;
+import su.hitori.pack.blueprint.BlueprintInstance;
+import su.hitori.pack.blueprint.Blueprints;
+import su.hitori.pack.type.blueprint.Blueprint;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class PackCommand extends CommandAPICommand {
 
-    public PackCommand(PackModule packModule) {
+    public PackCommand(PackModule packModule, Blueprints blueprints, Registry<@NotNull Blueprint> blueprintRegistry) {
         super("pack");
+
         withPermission("*");
         withSubcommands(
                 new CommandAPICommand("test-send")
                         .withArguments(new GreedyStringArgument("text"))
                         .executes(this::testSend),
+
+                new BlueprintCommand(blueprints, blueprintRegistry),
 
                 new GiveCommand(
                         packModule.registryAccess()
@@ -36,22 +48,11 @@ public final class PackCommand extends CommandAPICommand {
                                             ? "Starting generation of resourcepack"
                                             : "Already generating"
                             ));
-                        }),
-
-                new CommandAPICommand("test-spawn")
-                        .withArguments(new IntegerArgument("amount", 1))
-                        .executesPlayer((sender, args) -> {
-                            int amount = args.getOrDefaultUnchecked("amount", 1);
-                            sender.sendMessage(Messages.INFO.create("Spawned <aqua>" + amount + "</aqua> test block-entities."));
-
-                            Location loc = sender.getLocation();
-                            for (int i = 0; i < amount; i++) {
-                                loc.getWorld().spawn(loc, Interaction.class);
-                                loc.getWorld().spawn(loc, ItemDisplay.class);
-                            }
                         })
         );
     }
+
+
 
     private void testSend(CommandSender sender, CommandArguments args) {
         String text = args.getUnchecked("text");

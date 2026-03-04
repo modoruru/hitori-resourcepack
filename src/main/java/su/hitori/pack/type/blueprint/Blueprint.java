@@ -7,10 +7,7 @@ import org.joml.Vector2i;
 import su.hitori.pack.type.blueprint.animation.Animation;
 import su.hitori.pack.type.blueprint.node.NodeData;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public final class Blueprint implements Keyed {
 
@@ -27,7 +24,9 @@ public final class Blueprint implements Keyed {
     private final Map<UUID, Animation> animations;
     private final Map<String, UUID> animationsByName;
 
-    public Blueprint(Key key, Vector2i boundingBox, int interpolationDuration, int teleportationDuration, Map<UUID, NodeData> nodes, Map<UUID, Animation> animations) {
+    private final Set<Integer> characters;
+
+    public Blueprint(Key key, Vector2i boundingBox, int interpolationDuration, int teleportationDuration, Map<UUID, NodeData> nodes, Map<UUID, Animation> animations, Set<Integer> characters) {
         this.key = key;
         this.boundingBox = boundingBox;
         this.interpolationDuration = interpolationDuration;
@@ -45,6 +44,8 @@ public final class Blueprint implements Keyed {
         for (Animation value : animations.values()) {
             animationsByName.put(value.name.toLowerCase(), value.uuid);
         }
+
+        this.characters = characters;
     }
 
     @Override
@@ -65,10 +66,10 @@ public final class Blueprint implements Keyed {
     }
 
     /**
-     * @return mutable copy of all nodes
+     * @return immutable copy of all nodes
      */
     public Map<UUID, NodeData> nodes() {
-        return new HashMap<>(nodes);
+        return nodes;
     }
 
     public Optional<NodeData> node(String nodeName) {
@@ -80,7 +81,7 @@ public final class Blueprint implements Keyed {
     }
 
     public Map<UUID, Animation> animations() {
-        return new HashMap<>(animations);
+        return animations;
     }
 
     public Optional<Animation> animation(String animationName) {
@@ -89,6 +90,13 @@ public final class Blueprint implements Keyed {
 
     public Optional<Animation> animation(UUID animationUUID) {
         return Optional.ofNullable(animations.get(animationUUID));
+    }
+
+    /**
+     * Characters for body parts. Can be used to assign skins for characters
+     */
+    public Set<Integer> characters() {
+        return Set.copyOf(characters);
     }
 
 }

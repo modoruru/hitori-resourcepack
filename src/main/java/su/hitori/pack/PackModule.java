@@ -11,6 +11,7 @@ import su.hitori.pack.block.level.LevelServiceListener;
 import su.hitori.pack.block.player.CustomBlockListener;
 import su.hitori.pack.block.protection.CombinedProtectionService;
 import su.hitori.pack.block.protection.CoreProtectSupport;
+import su.hitori.pack.blueprint.Blueprints;
 import su.hitori.pack.command.PackCommand;
 import su.hitori.pack.generation.Generator;
 import su.hitori.pack.host.PackListener;
@@ -27,6 +28,7 @@ import su.hitori.pack.pose.listener.PlayerListener;
 import su.hitori.pack.pose.listener.SeatListener;
 import su.hitori.pack.pose.seat.SitCommand;
 import su.hitori.pack.type.block.CustomBlock;
+import su.hitori.pack.type.blueprint.Blueprint;
 import su.hitori.pack.type.item.CustomItem;
 
 import java.util.Optional;
@@ -40,6 +42,7 @@ public final class PackModule extends Module {
     private PackServer packServer;
     private BuiltInConveyors builtInConveyors;
     private PoseService poseService;
+    private Blueprints blueprints;
 
     private LevelService levelService;
     private TextSupport textSupport;
@@ -54,10 +57,12 @@ public final class PackModule extends Module {
         generator = new GeneratorImpl(this, folder().toFile());
         packServer = new PackServer(generator);
         builtInConveyors = new BuiltInConveyors(this);
-        poseService = new PoseService();
-
+        Registry<@NotNull Blueprint> blueprintRegistry = builtInConveyors.access(BuiltInConveyors.BLUEPRINT).get();
         Registry<@NotNull CustomBlock> customBlockRegistry = builtInConveyors.access(BuiltInConveyors.CUSTOM_BLOCK).get();
         Registry<@NotNull CustomItem> customItemRegistry = builtInConveyors.access(BuiltInConveyors.CUSTOM_ITEM).get();
+
+        poseService = new PoseService();
+        blueprints = new Blueprints(blueprintRegistry, executorService);
 
         CombinedProtectionService combinedProtectionService = new CombinedProtectionService();
         levelService = new LevelService(this, combinedProtectionService, customBlockRegistry, customItemRegistry);
@@ -85,7 +90,7 @@ public final class PackModule extends Module {
                 new CrawlListener(poseService)
         );
         context.commands().register(
-                new PackCommand(this),
+                new PackCommand(this, blueprints, blueprintRegistry),
                 new SitCommand(this),
                 new LayCommand(poseService),
                 new CrawlCommand(poseService)
@@ -108,6 +113,7 @@ public final class PackModule extends Module {
         levelService.unload();
         textSupport.unload();
         poseService.removeAllPoses();
+        blueprints().destroyAll();
     }
 
     public ExecutorService executorService() {
@@ -128,6 +134,10 @@ public final class PackModule extends Module {
 
     public PoseService poseService() {
         return poseService;
+    }
+
+    public Blueprints blueprints() {
+        return blueprints;
     }
 
     public Optional<CoreProtectSupport> coreProtectSupport() {

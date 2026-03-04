@@ -27,6 +27,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.NotNull;
 import su.hitori.api.nms.NMSUtil;
@@ -119,6 +120,7 @@ public final class CustomBlockListener implements Listener {
         }
 
         if (stack == null || stack.isEmpty()) return;
+        ItemMeta stackMeta = stack.getItemMeta().clone();
 
         // first: check if item in player hand is custom block
         CustomBlock customBlock = CustomItem.getCustomItem(stack, itemRegistry)
@@ -193,7 +195,7 @@ public final class CustomBlockListener implements Listener {
                 return;
             }
 
-            if(stack.getItemMeta().getEquippable().isSwappable())
+            if(stackMeta.getEquippable().isSwappable())
                 Task.runEntity(player, player::updateInventory, 1L);
 
             player.swingHand(hand);

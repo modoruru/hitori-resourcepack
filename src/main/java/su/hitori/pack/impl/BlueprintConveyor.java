@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import su.hitori.api.logging.LoggerFactory;
 import su.hitori.api.registry.RegistryKey;
 import su.hitori.api.util.EnumUtil;
+import su.hitori.pack.PackModule;
 import su.hitori.pack.generation.GenerationContext;
 import su.hitori.pack.type.blueprint.Blueprint;
 import su.hitori.pack.type.blueprint.RawBlueprint;
@@ -29,11 +30,14 @@ import su.hitori.pack.type.blueprint.animation.Frame;
 import su.hitori.pack.type.blueprint.animation.LoopMode;
 import su.hitori.pack.type.blueprint.node.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
 public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlueprint, Blueprint> {
@@ -43,6 +47,15 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
 
     public BlueprintConveyor(Key key, RegistryKey<Blueprint> registryKey) {
         super(key, registryKey);
+    }
+
+    private void addTestBlueprint(String name) {
+        RawBlueprint blueprint = RawBlueprint.create(
+                new File("/home/just_lofe/IdeaProjects/hitori-resourcepack/build/blueprints/" + name + ".json"),
+                true
+        );
+        if(blueprint != null)
+            snapshots.put(blueprint.key(), blueprint);
     }
 
     @Override
@@ -55,14 +68,9 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
         Map<UUID, byte[]> textures = new HashMap<>();
         Map<UUID, JSONObject> models = new HashMap<>();
 
-        RawBlueprint blueprint = RawBlueprint.create(
-                new File("/home/just_lofe/IdeaProjects/hitori-resourcepack/build/blueprints/example.json"),
-                true
-        );
-        if(blueprint != null) {
-            snapshots.put(blueprint.key(), blueprint);
-            LOGGER.warning("blueprint not null");
-        }
+        // for development
+        addTestBlueprint("example");
+        addTestBlueprint("body");
 
         registry.clear();
         snapshots.values().parallelStream().forEach(snapshot -> {
@@ -95,12 +103,13 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
 
             // let's start from the nodes
             Map<UUID, NodeData> nodes = new HashMap<>();
+            Set<Integer> characters = new HashSet<>();
             for (String nodeKey : nodesBody.keySet()) {
                 JSONObject nodeBody = nodesBody.optJSONObject(nodeKey);
                 if(nodeBody == null) continue;
 
                 try {
-                    NodeData nodeData = createNodeData(nodeKey, nodeBody, indexedModels);
+                    NodeData nodeData = createNodeData(nodeKey, nodeBody, indexedModels, characters);
                     if(nodeData != null) nodes.put(nodeData.uuid, nodeData);
                 }
                 catch (Exception _) {}
@@ -117,7 +126,6 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
 
             parseAssets(texturesBody, variantsBody, indexedModels, textures, models);
 
-            LOGGER.warning("Registered blueprint " + key.asString());
             registry.register(
                     key,
                     new Blueprint(
@@ -128,7 +136,8 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
                             settingsBody.optInt("interpolation_duration", 1),
                             settingsBody.optInt("teleportation_duration", 1),
                             nodes,
-                            animations
+                            animations,
+                            characters
                     )
             );
         });
@@ -185,7 +194,37 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
             }
         }
 
+        extractBodyAssets(context.folder().toPath());
+
         collectingOrGenerating = false;
+    }
+
+    private void extractBodyAssets(Path folder) {
+        try {
+            URL jarUrl = PackModule.class.getProtectionDomain().getCodeSource().getLocation();
+            JarFile jar = new JarFile(Path.of(jarUrl.toURI()).toFile());
+            Enumeration<JarEntry> entries = jar.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                if (entryName.startsWith("body/") && !entry.isDirectory()) {
+                    String relativePath = entryName.substring("body/".length());
+                    Path targetPath = folder.resolve(relativePath);
+
+                    Files.createDirectories(targetPath.getParent());
+
+                    try (InputStream is = jar.getInputStream(entry)) {
+                        Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
+            }
+
+            jar.close();
+        }
+        catch (Exception _) {
+        }
     }
 
     private static void parseAssets(JSONObject texturesBody, JSONObject variantsBody, Set<UUID> indexedModels, Map<UUID, byte[]> textures, Map<UUID, JSONObject> models) {
@@ -255,6 +294,7 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
         int duration = animationBody.optInt("duration", -1);
         int loopDelay = animationBody.optInt("loop_daly", 0);
         LoopMode loopMode = Optional.ofNullable(animationBody.optString("loop_mode", null))
+                .map(String::toUpperCase)
                 .map(rawLoopMode -> EnumUtil.safeValueOf(LoopMode.class, rawLoopMode))
                 .orElse(null);
         if(uuid == null || duration < 0 || loopMode == null) return null;
@@ -300,7 +340,7 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
         );
     }
 
-    private static NodeData createNodeData(String key, JSONObject nodeBody, Set<UUID> indexedModels) throws RuntimeException {
+    private static NodeData createNodeData(String key, JSONObject nodeBody, Set<UUID> indexedModels, Set<Integer> characters) throws RuntimeException {
         UUID uuid = uuidFromStringOrNull(key);
         Transformation transformation = Optional.ofNullable(nodeBody.optJSONObject("default_transform"))
                 .map(defaultTransformBody -> defaultTransformBody.optJSONObject("decomposed"))
@@ -308,7 +348,7 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
                 .orElse(null);
         if(uuid == null || transformation == null) return null;
 
-        String type = nodeBody.optString("body", "bone").toLowerCase();
+        String type = nodeBody.optString("type", "bone").toLowerCase();
         String name = nodeBody.optString("name", "");
 
         return switch (type) {
@@ -376,12 +416,20 @@ public final class BlueprintConveyor extends AbstractConveyorWithRegistry<RawBlu
                 BodyNodeData bodyNodeData = Optional.ofNullable(nodeBody.optString("name", null))
                         .map(String::toUpperCase)
                         .map(rawName -> {
-                            String[] unboxed = rawName.split("_", 2);
+                            int number = -1;
+                            int lastUnderscoreIndex = rawName.lastIndexOf('_');
+                            if(lastUnderscoreIndex != -1) {
+                                try {
+                                    number = Integer.parseInt(rawName.substring(lastUnderscoreIndex + 1));
+                                }
+                                catch (NumberFormatException _) {}
+                            }
 
                             int characterId = 0;
-                            if(unboxed.length == 2) characterId = Integer.parseInt(unboxed[1]);
+                            if(number != -1) characterId = number;
+                            characters.add(characterId);
 
-                            BodyNodeType bodyNodeType = EnumUtil.safeValueOf(BodyNodeType.class, unboxed[0]);
+                            BodyNodeType bodyNodeType = EnumUtil.safeValueOf(BodyNodeType.class, number == -1 ? rawName : rawName.substring(0, lastUnderscoreIndex));
                             if(bodyNodeType == null) return null;
 
                             return new BodyNodeData(uuid, name, transformation, characterId, bodyNodeType);

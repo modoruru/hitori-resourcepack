@@ -22,9 +22,9 @@ public final class Animation {
         this.frames = Map.copyOf(frames);
     }
 
-    public Optional<Frame> getFrame(int frame) {
-        if(frame < 0 || frame > duration) return Optional.empty();
-        return Optional.ofNullable(frames.get(frame));
+    public Optional<Frame> getFrame(int frameTick) {
+        if(frameTick < 0 || frameTick > duration) return Optional.empty();
+        return Optional.ofNullable(frames.get(frameTick));
     }
 
 }

@@ -1,0 +1,31 @@
+{
+	"model": {
+		"type": "minecraft:select",
+		"property": "minecraft:custom_model_data",
+		"cases": [
+			{
+				"when": "slim",
+				"model": {
+					"type": "minecraft:special",
+					"base": "hitori_body:slim/torso",
+					"model": {
+						"type": "minecraft:player_head"
+					}
+				}
+			}
+		],
+		"fallback": {
+			"type": "minecraft:special",
+			"base": "hitori_body:torso",
+			"model": {
+				"type": "minecraft:player_head"
+			}
+		},
+		"tints": [
+			{
+				"type": "minecraft:dye",
+				"default": [1, 1, 1]
+			}
+		]
+	}
+}
