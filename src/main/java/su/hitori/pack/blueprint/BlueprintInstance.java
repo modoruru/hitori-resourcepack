@@ -101,6 +101,12 @@ public final class BlueprintInstance {
         return this;
     }
 
+    public BlueprintInstance setCamera(Player observer, UUID cameraNodeUUID) {
+        if(destroyed || !observers.containsKey(observer)) return this;
+
+
+    }
+
     public BlueprintInstance addObserver(Player player) {
         if(destroyed || observers.containsKey(player)) return this;
         Observer observer = new Observer(new HashSet<>(), NMSUtil.asNMS(player));
