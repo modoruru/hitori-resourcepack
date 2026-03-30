@@ -25,6 +25,7 @@ import su.hitori.pack.block.BlockPos;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.block.player.PlayerBlocksInjection;
 import su.hitori.pack.block.protection.CombinedProtectionService;
+import su.hitori.pack.block.protection.CoreProtectSupport;
 import su.hitori.pack.pose.PoseService;
 import su.hitori.pack.pose.seat.SeatPose;
 import su.hitori.pack.type.ItemModel;
@@ -47,6 +48,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -335,8 +337,11 @@ public final class LevelService {
         BlockPos centerPos = new BlockPos(center);
         int additionalDataInitial = placedFrom != null ? placedFrom.getPersistentDataContainer().getOrDefault(ADDITIONAL_DATA, PersistentDataType.INTEGER, 0) : 0;
 
+        Optional<CoreProtectSupport> coreProtect = packModule.coreProtectSupport();
         for (Block block : blocks) {
             if(placementType == PlacementType.SOLID) block.setType(Material.BARRIER);
+
+            coreProtect.ifPresent(support -> support.logCustomBlockPlacement(whoPlaced, block));
 
             boolean isCenter = BlockPos.equals(center, block);
             level.setState(
@@ -470,11 +475,14 @@ public final class LevelService {
         BehaviourProperties behaviour = blockProperties.behaviourProperties();
 
         PoseService poseService = packModule.poseService();
+        Optional<CoreProtectSupport> coreProtect = packModule.coreProtectSupport();
         for (Block block : placement.getBlocksAffectedByPlacement(
                 direction,
                 orientation,
                 parent
         )) {
+            if(player != null)
+                coreProtect.ifPresent(support -> support.logCustomBlockBreak(player, block));
             level.setState(
                     block.getX(),
                     block.getY(),
