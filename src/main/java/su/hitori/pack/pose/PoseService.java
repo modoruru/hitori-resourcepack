@@ -164,6 +164,8 @@ public final class PoseService {
             if(playerMoveEvent.isCancelled()) return;
         }
 
+        seatByBlock.remove(seatPose.getBlock());
+
         seatPose.setBlock(seatPose.getBlock().getRelative(blockDirection));
         seatPose.setLocation(seatPose.getLocation().add(blockDirection.getModX(), blockDirection.getModY(), blockDirection.getModZ()));
         PoseUtil.setEntityLocation(seatPose.getSeatEntity(), seatPose.getLocation());
