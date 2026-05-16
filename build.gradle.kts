@@ -4,7 +4,13 @@ plugins {
     id("maven-publish")
 }
 
-val defaultJavaVersion = 23
+val defaultJavaVersion = "23"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(properties.getOrDefault("java", defaultJavaVersion) as String))
+    }
+}
 
 repositories {
     mavenCentral()
