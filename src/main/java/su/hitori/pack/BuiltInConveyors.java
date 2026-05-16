@@ -34,13 +34,13 @@ public final class BuiltInConveyors implements RegistryAccess {
     BuiltInConveyors(PackModule packModule) {
         Generator generator = packModule.generator();
         ModuleDescriptor descriptor = packModule.moduleDescriptor();
-        generator.addConveyor(descriptor, new ItemModelConveyor(Key.key("item_model")), ItemModel.class);
-        generator.addConveyor(descriptor, this.customItemConveyor = new CustomItemConveyor(Key.key("custom_item"), CUSTOM_ITEM), CustomItem.class);
-        generator.addConveyor(descriptor, this.glyphConveyor = new GlyphConveyor(packModule, Key.key("glyph"), GLYPH), GlyphSnapshot.class);
-        generator.addConveyor(descriptor, new SoundConveyor(Key.key("sound")), Sound.class);
-        generator.addConveyor(descriptor, new TranslationsConveyor(Key.key("translations")), Translations.class);
-        generator.addConveyor(descriptor, this.customBlockConveyor = new CustomBlockConveyor(Key.key("custom_block"), CUSTOM_BLOCK), CustomBlock.class);
-        generator.addConveyor(descriptor, new AssetsConveyor(Key.key("assets")), AssetsSource.class);
+        generator.addConveyorLast(descriptor, new ItemModelConveyor(Key.key("item_model")), ItemModel.class);
+        generator.addConveyorLast(descriptor, this.customItemConveyor = new CustomItemConveyor(Key.key("custom_item"), CUSTOM_ITEM), CustomItem.class);
+        generator.addConveyorLast(descriptor, this.glyphConveyor = new GlyphConveyor(packModule, Key.key("glyph"), GLYPH), GlyphSnapshot.class);
+        generator.addConveyorLast(descriptor, new SoundConveyor(Key.key("sound")), Sound.class);
+        generator.addConveyorLast(descriptor, new TranslationsConveyor(Key.key("translations")), Translations.class);
+        generator.addConveyorLast(descriptor, this.customBlockConveyor = new CustomBlockConveyor(Key.key("custom_block"), CUSTOM_BLOCK), CustomBlock.class);
+        generator.addConveyorLast(descriptor, new AssetsConveyor(Key.key("assets")), AssetsSource.class);
     }
 
     @Override

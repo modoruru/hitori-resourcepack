@@ -274,7 +274,21 @@ public final class GeneratorImpl implements Generator {
     }
 
     @Override
-    public <E extends Keyed> void addConveyor(ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType) {
+    public <E extends Keyed> void addConveyorAfter(Key baseConveyor, ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType) {
+        Key key = conveyor.key();
+        if(conveyorsPipeline.containsKey(key) || (!moduleDescriptor.isEnabled() && !moduleDescriptor.isEnabling())) return;
+        conveyorsPipeline.addAfter(baseConveyor, key, new ConveyorWrapper(moduleDescriptor, conveyor, objectType));
+    }
+
+    @Override
+    public <E extends Keyed> void addConveyorBefore(Key baseConveyor, ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType) {
+        Key key = conveyor.key();
+        if(conveyorsPipeline.containsKey(key) || (!moduleDescriptor.isEnabled() && !moduleDescriptor.isEnabling())) return;
+        conveyorsPipeline.addBefore(baseConveyor, key, new ConveyorWrapper(moduleDescriptor, conveyor, objectType));
+    }
+
+    @Override
+    public <E extends Keyed> void addConveyorLast(ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType) {
         Key key = conveyor.key();
         if(conveyorsPipeline.containsKey(key) || (!moduleDescriptor.isEnabled() && !moduleDescriptor.isEnabling())) return;
         conveyorsPipeline.addLast(key, new ConveyorWrapper(moduleDescriptor, conveyor, objectType));

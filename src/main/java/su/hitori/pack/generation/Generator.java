@@ -38,7 +38,11 @@ public interface Generator {
         return this;
     }
 
-    <E extends Keyed> void addConveyor(ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType);
+    <E extends Keyed> void addConveyorAfter(Key baseConveyor, ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType);
+
+    <E extends Keyed> void addConveyorBefore(Key baseConveyor, ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType);
+
+    <E extends Keyed> void addConveyorLast(ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType);
 
     /**
      * returns file and hash if generated, or empty if pack is not generated yet or generating right now
