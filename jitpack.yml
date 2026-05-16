@@ -1,5 +1,4 @@
-jdk:
-  - openjdk23
+jdk: openjdk23
 
 before_install:
   - chmod +x gradlew
