@@ -23,6 +23,7 @@ import su.hitori.api.util.Task;
 import su.hitori.pack.PackModule;
 import su.hitori.pack.block.BlockPos;
 import su.hitori.pack.block.BlockState;
+import su.hitori.pack.block.event.CustomBlockPlaceEvent;
 import su.hitori.pack.block.player.PlayerBlocksInjection;
 import su.hitori.pack.block.protection.CombinedProtectionService;
 import su.hitori.pack.block.protection.CoreProtectSupport;
@@ -334,6 +335,10 @@ public final class LevelService {
         }
 
         Collection<Block> blocks = placementProperties.getBlocksAffectedByPlacement(direction, orientation, center);
+
+        if(!new CustomBlockPlaceEvent(customBlock, blocks, whoPlaced).callEvent())
+            return false;
+
         BlockPos centerPos = new BlockPos(center);
         int additionalDataInitial = placedFrom != null ? placedFrom.getPersistentDataContainer().getOrDefault(ADDITIONAL_DATA, PersistentDataType.INTEGER, 0) : 0;
 
@@ -402,6 +407,8 @@ public final class LevelService {
                 level.getState(center.getX(), center.getY(), center.getZ()),
                 display
         );
+
+
 
         return true;
     }
