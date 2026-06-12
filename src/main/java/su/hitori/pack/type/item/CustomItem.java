@@ -1,21 +1,15 @@
 package su.hitori.pack.type.item;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.food.FoodProperties;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.inventory.components.CraftFoodComponent;
-import org.bukkit.craftbukkit.inventory.components.CraftJukeboxComponent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.components.ToolComponent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.tag.DamageTypeTags;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +21,7 @@ import su.hitori.pack.type.ItemModel;
 import java.util.Map;
 import java.util.Optional;
 
+@SuppressWarnings("UnstableApiUsage")
 public record CustomItem(ItemProperties properties) implements Keyed {
 
     public static final int DISABLED = -1;
@@ -53,12 +48,6 @@ public record CustomItem(ItemProperties properties) implements Keyed {
         stack.addItemFlags(properties.flags().toArray(new ItemFlag[0]));
 
         stack.editMeta(meta -> {
-            FoodProperties food = properties.food();
-            if(food != null) meta.setFood(new CraftFoodComponent(food));
-
-            ToolComponent tool = properties.tool();
-            meta.setTool(tool);
-
             meta.setEnchantmentGlintOverride(properties.glintOverride());
 
             Boolean fire = properties.fireResistant();
@@ -70,9 +59,6 @@ public record CustomItem(ItemProperties properties) implements Keyed {
             Boolean tooltip = properties.hideTooltip();
             if(tooltip != null) meta.setHideTooltip(tooltip);
 
-            var jukebox = properties.jukebox();
-            if(jukebox != null) meta.setJukeboxPlayable(new CraftJukeboxComponent(jukebox));
-
             var unbreakable = properties.unbreakable();
             if(unbreakable != null) meta.setUnbreakable(unbreakable);
 
@@ -82,8 +68,6 @@ public record CustomItem(ItemProperties properties) implements Keyed {
 
             int maxStackSize = properties.maxStackSize();
             meta.setMaxStackSize(maxStackSize == DISABLED ? null : maxStackSize);
-
-            meta.setEquippable(properties.equipment());
 
             meta.displayName(properties.name().decoration(TextDecoration.ITALIC, false));
 
@@ -107,12 +91,11 @@ public record CustomItem(ItemProperties properties) implements Keyed {
                         .toList()
         );
 
-        net.minecraft.world.item.ItemStack nms = CraftItemStack.asNMSCopy(stack);
-        var builder = DataComponentPatch.builder();
-        if(properties.consumable() != null) builder.set(DataComponents.CONSUMABLE, properties.consumable());
-        if(properties.potion() != null) builder.set(DataComponents.POTION_CONTENTS, properties.potion());
-        nms.applyComponents(builder.build());
-        stack = CraftItemStack.asBukkitCopy(nms);
+        if(properties.consumable() != null) stack.setData(DataComponentTypes.CONSUMABLE, properties.consumable());
+        if(properties.food() != null) stack.setData(DataComponentTypes.FOOD, properties.food());
+        if(properties.tool() != null) stack.setData(DataComponentTypes.TOOL, properties.tool());
+        if(properties.jukebox() != null) stack.setData(DataComponentTypes.JUKEBOX_PLAYABLE, properties.jukebox());
+        if(properties.equipment() != null) stack.setData(DataComponentTypes.EQUIPPABLE, properties.equipment());
 
         return stack;
     }

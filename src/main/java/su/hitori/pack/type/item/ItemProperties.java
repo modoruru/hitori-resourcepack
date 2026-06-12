@@ -1,29 +1,21 @@
 package su.hitori.pack.type.item;
 
+import io.papermc.paper.datacomponent.item.*;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.minecraft.core.Holder;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.food.FoodConstants;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ItemUseAnimation;
-import net.minecraft.world.item.JukeboxPlayable;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.component.Consumable;
-import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
-import org.bukkit.inventory.meta.components.EquippableComponent;
-import org.bukkit.inventory.meta.components.ToolComponent;
 import org.jetbrains.annotations.NotNull;
 import su.hitori.api.util.Text;
 import su.hitori.pack.type.ItemModel;
 
 import java.util.*;
 
+@SuppressWarnings("UnstableApiUsage")
 public final class ItemProperties {
 
     private final Key key;
@@ -40,9 +32,9 @@ public final class ItemProperties {
     private Boolean glintOverride;
     private Consumable consumable;
     private FoodProperties food;
-    private ToolComponent tool;
+    private Tool tool;
     private JukeboxPlayable jukebox;
-    private EquippableComponent equippableComponent;
+    private Equippable equippableComponent;
     private PotionContents potion;
     private ItemRarity rarity;
     private final Map<Attribute, AttributeModifier> attributeModifiers = new HashMap<>();
@@ -164,10 +156,6 @@ public final class ItemProperties {
         return this;
     }
 
-    public ItemProperties consumable(float consumeSeconds, ItemUseAnimation animation, Holder<SoundEvent> sound, boolean hasConsumeParticles, List<ConsumeEffect> onConsumeEffects) {
-        return consumable(new Consumable(consumeSeconds, animation, sound, hasConsumeParticles, onConsumeEffects));
-    }
-
     public ItemProperties consumable(Consumable.Builder builder) {
         return consumable(builder.build());
     }
@@ -182,19 +170,25 @@ public final class ItemProperties {
     }
 
     public ItemProperties food(int nutrition, float saturationModifier, boolean canAlwaysEat) {
-        return food(new FoodProperties(nutrition, FoodConstants.saturationByModifier(nutrition, saturationModifier), canAlwaysEat));
+        return food(
+                FoodProperties.food()
+                        .nutrition(nutrition)
+                        .saturation(FoodConstants.saturationByModifier(nutrition, saturationModifier))
+                        .canAlwaysEat(canAlwaysEat)
+                        .build()
+        );
     }
 
     public FoodProperties food() {
         return food;
     }
 
-    public ItemProperties tool(ToolComponent tool) {
+    public ItemProperties tool(Tool tool) {
         this.tool = tool;
         return this;
     }
 
-    public ToolComponent tool() {
+    public Tool tool() {
         return tool;
     }
 
@@ -207,12 +201,12 @@ public final class ItemProperties {
         return jukebox;
     }
 
-    public ItemProperties equipment(EquippableComponent equippableComponent) {
+    public ItemProperties equipment(Equippable equippableComponent) {
         this.equippableComponent = equippableComponent;
         return this;
     }
 
-    public EquippableComponent equipment() {
+    public Equippable equipment() {
         return equippableComponent;
     }
 
