@@ -11,17 +11,22 @@ import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Player;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import su.hitori.api.nms.NMSUtil;
 import su.hitori.api.util.Task;
 import su.hitori.pack.blueprint.node.BodyNodeInstance;
+import su.hitori.pack.blueprint.node.CameraNodeInstance;
 import su.hitori.pack.blueprint.node.NodeInstance;
 import su.hitori.pack.type.blueprint.Blueprint;
 import su.hitori.pack.type.blueprint.animation.Animation;
 import su.hitori.pack.type.blueprint.animation.Frame;
+import su.hitori.pack.type.blueprint.node.LocatorNodeData;
 import su.hitori.pack.type.blueprint.node.NodeData;
 
 import java.util.*;
@@ -34,6 +39,7 @@ public final class BlueprintInstance {
     private final ExecutorService executorService;
 
     private final Map<UUID, NodeInstance<? extends NodeData, ? extends Entity>> nodes;
+    private final Map<UUID, Transformation> locators;
     private final Map<Player, Observer> observers;
     private final Map<Integer, GameProfile> charactersSkins;
 
@@ -53,6 +59,7 @@ public final class BlueprintInstance {
         this.executorService = executorService;
 
         this.nodes = new HashMap<>();
+        this.locators = new HashMap<>();
         this.observers = new HashMap<>();
         this.charactersSkins = new HashMap<>();
 
@@ -65,6 +72,18 @@ public final class BlueprintInstance {
 
     public Blueprint blueprint() {
         return blueprint;
+    }
+
+    public org.bukkit.util.Transformation locatorTransformation(UUID locatorUuid) {
+        Transformation transformation = locators.get(locatorUuid);
+        if(transformation == null) return null;
+
+        return new org.bukkit.util.Transformation(
+                new Vector3f(transformation.getTranslation()),
+                new Quaternionf(transformation.getLeftRotation()),
+                new Vector3f(transformation.getScale()),
+                new Quaternionf(transformation.getRightRotation())
+        );
     }
 
     public BlueprintInstance assignSkin(int characterId, PlayerProfile playerProfile) {
@@ -92,7 +111,7 @@ public final class BlueprintInstance {
 
             for (Observer observer : observers.values()) {
                 for (Map.Entry<Integer, ClientboundSetEntityDataPacket> entry : updated.entrySet()) {
-                    if(observer.entitySent().contains(entry.getKey()))
+                    if(observer.entitySent.contains(entry.getKey()))
                         observer.sendPacket(entry.getValue());
                 }
             }
@@ -101,10 +120,33 @@ public final class BlueprintInstance {
         return this;
     }
 
-    public BlueprintInstance setCamera(Player observer, UUID cameraNodeUUID) {
-        if(destroyed || !observers.containsKey(observer)) return this;
+    public BlueprintInstance setCamera(Player observerPlayer, UUID cameraNodeUUID) {
+        Observer observer;
+        if(destroyed || (observer = observers.get(observerPlayer)) == null || observer.cameraUuid != null) return this;
 
+        var nodeInstance = nodes.get(cameraNodeUUID);
+        if(!(nodeInstance instanceof CameraNodeInstance cameraNodeInstance)) return this;
 
+        observer.cameraUuid = cameraNodeUUID;
+        observer.originalGameType = observer.serverPlayer.gameMode();
+        observer.serverPlayer.setGameMode(GameType.SPECTATOR);
+
+        observer.sendPacket(new ClientboundSetCameraPacket(cameraNodeInstance.entity()));
+
+        return this;
+    }
+
+    public BlueprintInstance removeCamera(Player observerPlayer) {
+        Observer observer;
+        if(destroyed || (observer = observers.get(observerPlayer)) == null || observer.cameraUuid == null) return this;
+
+        observer.sendPacket(new ClientboundSetCameraPacket(observer.serverPlayer));
+        observer.serverPlayer.setGameMode(observer.originalGameType);
+
+        observer.cameraUuid = null;
+        observer.originalGameType = null;
+
+        return this;
     }
 
     public BlueprintInstance addObserver(Player player) {
@@ -129,14 +171,14 @@ public final class BlueprintInstance {
 
         packets.add(BlueprintUtil.createEntityPacket(mainEntity));
         packets.add(BlueprintUtil.createSetEntityDataPacket(mainEntity, false));
-        observer.entitySent().add(mainEntity.getId());
+        observer.entitySent.add(mainEntity.getId());
 
         for (NodeInstance<? extends NodeData, ? extends Entity> nodeInstance : nodes.values()) {
             int nodeEntityId = nodeInstance.entity().getId();
 
             packets.addAll(nodeInstance.createAddPackets());
             passengers.add(nodeEntityId);
-            observer.entitySent().add(nodeEntityId);
+            observer.entitySent.add(nodeEntityId);
         }
 
         packets.add(BlueprintUtil.createSetPassengersPacket(mainEntity.getId(), passengers));
@@ -145,15 +187,15 @@ public final class BlueprintInstance {
     }
 
     private ClientboundRemoveEntitiesPacket createHidePayload(Observer observer) {
-        int[] entities = new int[observer.entitySent().size() + 1];
+        int[] entities = new int[observer.entitySent.size() + 1];
         entities[0] = mainEntity.getId();
         
-        var iterator = observer.entitySent().iterator();
+        var iterator = observer.entitySent.iterator();
         for (int i = 0; i < entities.length - 1; i++) {
             entities[i + 1] = iterator.next();
         }
 
-        observer.entitySent().clear();
+        observer.entitySent.clear();
 
         return new ClientboundRemoveEntitiesPacket(entities);
     }
@@ -223,6 +265,9 @@ public final class BlueprintInstance {
         mainEntity.setPos(position);
 
         for (NodeData nodeData : blueprint.nodes().values()) {
+            if(nodeData instanceof LocatorNodeData)
+                locators.put(nodeData.uuid, nodeData.transformation);
+
             NodeInstance<? extends NodeData, ? extends Entity> nodeInstance = NodeInstance.create(this, nodeData);
             if(nodeInstance == null) continue;
 
@@ -350,9 +395,23 @@ public final class BlueprintInstance {
             if(setEntityDataPacket == null) continue;
 
             for (Observer observer : observers.values()) {
-                if(observer.entitySent().contains(entity.getId()))
+                if(observer.entitySent.contains(entity.getId()))
                     observer.sendPacket(setEntityDataPacket);
             }
+        }
+
+        for (UUID locatorUuid : locators.keySet()) {
+            Transformation transformation = nodeTransformations.get(locatorUuid);
+            if(transformation == null) {
+                if(!useInitialTransformationIfAbsent)
+                    continue;
+
+                transformation = blueprint.node(locatorUuid)
+                        .map(nodeData -> nodeData.transformation)
+                        .orElseThrow();
+            }
+
+            locators.put(locatorUuid, transformation);
         }
     }
 

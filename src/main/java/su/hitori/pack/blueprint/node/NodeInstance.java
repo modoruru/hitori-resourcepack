@@ -21,7 +21,7 @@ import su.hitori.pack.type.blueprint.node.NodeType;
 import java.util.List;
 import java.util.UUID;
 
-public abstract sealed class NodeInstance<NodeDataType extends NodeData, EntityType extends Entity> permits BlockNodeInstance, BodyNodeInstance, BoneNodeInstance, ItemNodeInstance, TextNodeInstance {
+public abstract sealed class NodeInstance<NodeDataType extends NodeData, EntityType extends Entity> permits BlockNodeInstance, BodyNodeInstance, BoneNodeInstance, CameraNodeInstance, ItemNodeInstance, TextNodeInstance {
 
     static final EntityDataAccessor<Integer> POSITION_ROTATION_INTERPOLATION_DURATION_DATA = Display.ItemDisplay.DATA_POS_ROT_INTERPOLATION_DURATION_ID;
 
@@ -98,6 +98,7 @@ public abstract sealed class NodeInstance<NodeDataType extends NodeData, EntityT
             case BLOCK -> new BlockNodeInstance(blueprintInstance, UnsafeUtil.cast(nodeData));
             case TEXT -> new TextNodeInstance(blueprintInstance, UnsafeUtil.cast(nodeData));
             case BONE -> new BoneNodeInstance(blueprintInstance, UnsafeUtil.cast(nodeData));
+            case CAMERA -> new CameraNodeInstance(blueprintInstance, UnsafeUtil.cast(nodeData));
             default -> null;
         };
     }

@@ -10,10 +10,12 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+@ApiStatus.Internal
 public final class BlueprintUtil {
 
     private static final EntityDataAccessor<Integer> INTERPOLATION_DELAY_DATA = new EntityDataAccessor<>(8, EntityDataSerializers.INT);
