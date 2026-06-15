@@ -4,8 +4,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import su.hitori.api.Pair;
-import su.hitori.api.util.Text;
 import su.hitori.pack.PackConfiguration;
 import su.hitori.pack.generation.Generator;
 
@@ -21,7 +21,7 @@ public final class PackServer {
 
     private final Generator generator;
 
-    private HttpServer server;
+    private @Nullable HttpServer server;
 
     public PackServer(Generator generator) {
         this.generator = generator;

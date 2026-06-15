@@ -9,13 +9,14 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.CraftWorld;
+import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import su.hitori.pack.pose.PoseService;
 
 public final class SeatPoseEntity extends ArmorStand {
 
     private boolean rotate;
-    public Runnable runnable;
+    public @Nullable Runnable runnable;
 
     public SeatPoseEntity(Location location) {
         super(

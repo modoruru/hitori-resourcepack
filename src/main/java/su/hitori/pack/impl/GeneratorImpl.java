@@ -4,16 +4,12 @@ import io.papermc.paper.ServerBuildInfo;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import su.hitori.api.Pair;
 import su.hitori.api.logging.LoggerFactory;
 import su.hitori.api.module.ModuleDescriptor;
-import su.hitori.api.util.FileUtil;
-import su.hitori.api.util.JSONUtil;
-import su.hitori.api.util.Pipeline;
-import su.hitori.api.util.Task;
+import su.hitori.api.util.*;
 import su.hitori.pack.PackModule;
 import su.hitori.pack.generation.ErrorStack;
 import su.hitori.pack.generation.GenerationContext;
@@ -33,10 +29,9 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-@NotNullByDefault
 public final class GeneratorImpl implements Generator {
 
-    private static final Logger logger = LoggerFactory.instance().create(Generator.class);
+    public static final Logger LOGGER = LoggerFactory.instance().create(Generator.class);
     private static final Set<String> ALLOWED_FILE_EXTENSIONS = Set.of(
             "mcmeta", "json", "png", "ogg", "fsh", "vsh", "glsl"
     );
@@ -72,7 +67,7 @@ public final class GeneratorImpl implements Generator {
         generating.set(true);
 
         long start = System.currentTimeMillis();
-        logger.info("Starting pack generation");
+        LOGGER.info("Starting pack generation");
 
         Set<Key> toRemove = new HashSet<>();
         for (ConveyorWrapper wrapper : conveyorsPipeline) {
@@ -89,7 +84,7 @@ public final class GeneratorImpl implements Generator {
             FileUtil.deleteRecursively(file);
         }
 
-        logger.info("Collecting data on conveyors...");
+        LOGGER.info("Collecting data on conveyors...");
 
         GenerationContext context = new GenerationContext(tempFolder, new ErrorStack());
         for (ConveyorWrapper wrapper : conveyorsPipeline) {
@@ -103,7 +98,7 @@ public final class GeneratorImpl implements Generator {
             }
         }
 
-        logger.info("Generating from conveyors... ");
+        LOGGER.info("Generating from conveyors... ");
 
         for (ConveyorWrapper wrapper : conveyorsPipeline) {
             GenerationConveyor<?> conveyor = wrapper.conveyor;
@@ -116,7 +111,7 @@ public final class GeneratorImpl implements Generator {
             }
         }
 
-        logger.info("Creating meta file and archiving...");
+        LOGGER.info("Creating meta file and archiving...");
         createMetaFile(tempFolder);
 
         File file = createArchive(tempFolder);
@@ -125,7 +120,7 @@ public final class GeneratorImpl implements Generator {
         result = Pair.of(file, hash);
         generating.set(false);
 
-        logger.info(String.format("Done! Pack generated in %.3fs", (System.currentTimeMillis() - start) * 0.001));
+        LOGGER.info(String.format("Done! Pack generated in %.3fs", (System.currentTimeMillis() - start) * 0.001));
 
         Bukkit.getOnlinePlayers().forEach(packModule.packServer()::sendPack);
     }
@@ -187,7 +182,7 @@ public final class GeneratorImpl implements Generator {
                         if(dode != -1) {
                             String extension = entryName.substring(dode + 1).toLowerCase();
                             if(!ALLOWED_FILE_EXTENSIONS.contains(extension)) {
-                                logger.warning("Found entry with non-allowed extension; it will not be included in final archive. Entry name: \"" + entryName + "\", Extension: \"" + extension + "\".");
+                                LOGGER.warning("Found entry with non-allowed extension; it will not be included in final archive. Entry name: \"" + entryName + "\", Extension: \"" + extension + "\".");
                                 return;
                             }
                         }
@@ -270,11 +265,25 @@ public final class GeneratorImpl implements Generator {
                 objectType.getName()
         ));
 
-        return (GenerationConveyor<E>) wrapper.conveyor;
+        return UnsafeUtil.cast(wrapper.conveyor);
     }
 
     @Override
-    public <E extends Keyed> void addConveyor(ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType) {
+    public <E extends Keyed> void addConveyorAfter(Key baseConveyor, ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType) {
+        Key key = conveyor.key();
+        if(conveyorsPipeline.containsKey(key) || (!moduleDescriptor.isEnabled() && !moduleDescriptor.isEnabling())) return;
+        conveyorsPipeline.addAfter(baseConveyor, key, new ConveyorWrapper(moduleDescriptor, conveyor, objectType));
+    }
+
+    @Override
+    public <E extends Keyed> void addConveyorBefore(Key baseConveyor, ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType) {
+        Key key = conveyor.key();
+        if(conveyorsPipeline.containsKey(key) || (!moduleDescriptor.isEnabled() && !moduleDescriptor.isEnabling())) return;
+        conveyorsPipeline.addBefore(baseConveyor, key, new ConveyorWrapper(moduleDescriptor, conveyor, objectType));
+    }
+
+    @Override
+    public <E extends Keyed> void addConveyorLast(ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType) {
         Key key = conveyor.key();
         if(conveyorsPipeline.containsKey(key) || (!moduleDescriptor.isEnabled() && !moduleDescriptor.isEnabling())) return;
         conveyorsPipeline.addLast(key, new ConveyorWrapper(moduleDescriptor, conveyor, objectType));

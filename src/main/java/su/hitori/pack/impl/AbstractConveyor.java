@@ -2,7 +2,6 @@ package su.hitori.pack.impl;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.jetbrains.annotations.NotNull;
 import su.hitori.api.util.Pipeline;
 import su.hitori.pack.generation.ErrorStack;
 import su.hitori.pack.generation.GenerationConveyor;
@@ -55,7 +54,7 @@ public abstract class AbstractConveyor<E extends Keyed> implements GenerationCon
         snapshots.clear();
         suppliers.forEach(supplier -> {
             Collection<E> supplied = supplier.supply();
-            if(supplied == null || supplied.isEmpty()) return;
+            if(supplied.isEmpty()) return;
 
             for (E keyed : supplied) {
                 Key key = keyed.key();
@@ -72,7 +71,7 @@ public abstract class AbstractConveyor<E extends Keyed> implements GenerationCon
     }
 
     @Override
-    public @NotNull Key key() {
+    public Key key() {
         return key;
     }
 

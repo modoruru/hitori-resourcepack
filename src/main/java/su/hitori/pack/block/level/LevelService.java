@@ -23,8 +23,10 @@ import su.hitori.api.util.Task;
 import su.hitori.pack.PackModule;
 import su.hitori.pack.block.BlockPos;
 import su.hitori.pack.block.BlockState;
+import su.hitori.pack.block.event.CustomBlockPlaceEvent;
 import su.hitori.pack.block.player.PlayerBlocksInjection;
 import su.hitori.pack.block.protection.CombinedProtectionService;
+import su.hitori.pack.block.protection.CoreProtectSupport;
 import su.hitori.pack.pose.PoseService;
 import su.hitori.pack.pose.seat.SeatPose;
 import su.hitori.pack.type.ItemModel;
@@ -72,7 +74,7 @@ public final class LevelService {
 
     private final AtomicBoolean performingCheck;
 
-    private Task validateTask;
+    private @Nullable Task validateTask;
     private boolean loaded;
 
     public LevelService(PackModule packModule, CombinedProtectionService combinedProtectionService, Registry<@NotNull CustomBlock> blockRegistry, Registry<@NotNull CustomItem> itemRegistry) {
@@ -102,7 +104,7 @@ public final class LevelService {
                 Block center = bukkitEntity.getLocation().getBlock();
 
                 BlockState state = level.getState(center.getX(), center.getY(), center.getZ());
-                if(state == null) continue;
+                if(state.isEmpty()) continue;
 
                 CustomBlock customBlock = blockRegistry.get(state.key());
                 if(customBlock == null) continue;
@@ -137,11 +139,11 @@ public final class LevelService {
         performingCheck.set(false);
     }
 
-    public Level getLevel(Key key) {
+    public @Nullable Level getLevel(Key key) {
         return levels.get(key);
     }
 
-    public Level getLevel(World world) {
+    public @Nullable Level getLevel(World world) {
         return getLevel(world.getKey());
     }
 
@@ -182,6 +184,8 @@ public final class LevelService {
         if(block.getType() != Material.BARRIER && block.getType() != Material.AIR) return;
 
         Level windmillLevel = getLevel(block.getWorld());
+        if(windmillLevel == null) return;
+
         BlockState state = windmillLevel.getState(block.getX(), block.getY(), block.getZ());
         if(state.isEmpty()) return;
 
@@ -242,7 +246,10 @@ public final class LevelService {
         if(!loaded) return;
         loaded = false;
 
-        validateTask.cancel();
+        if(validateTask != null) {
+            validateTask.cancel();
+            validateTask = null;
+        }
 
         for (Level level : levels.values()) {
             level.unload();
@@ -312,6 +319,7 @@ public final class LevelService {
 
         World world = center.getWorld();
         Level level = getLevel(world);
+        assert level != null;
 
         if(!placementProperties.canBePlaced(direction, orientation, center, center, level, ignoreEntities) || !combinedProtectionService.isAbleToBreak(center, whoPlaced)) return false;
 
@@ -332,11 +340,18 @@ public final class LevelService {
         }
 
         Collection<Block> blocks = placementProperties.getBlocksAffectedByPlacement(direction, orientation, center);
+
+        if(!new CustomBlockPlaceEvent(customBlock, blocks, whoPlaced).callEvent())
+            return false;
+
         BlockPos centerPos = new BlockPos(center);
         int additionalDataInitial = placedFrom != null ? placedFrom.getPersistentDataContainer().getOrDefault(ADDITIONAL_DATA, PersistentDataType.INTEGER, 0) : 0;
 
+        Optional<CoreProtectSupport> coreProtect = packModule.coreProtectSupport();
         for (Block block : blocks) {
             if(placementType == PlacementType.SOLID) block.setType(Material.BARRIER);
+
+            coreProtect.ifPresent(support -> support.logCustomBlockPlacement(whoPlaced, block));
 
             boolean isCenter = BlockPos.equals(center, block);
             level.setState(
@@ -397,6 +412,8 @@ public final class LevelService {
                 level.getState(center.getX(), center.getY(), center.getZ()),
                 display
         );
+
+
 
         return true;
     }
@@ -470,11 +487,14 @@ public final class LevelService {
         BehaviourProperties behaviour = blockProperties.behaviourProperties();
 
         PoseService poseService = packModule.poseService();
+        Optional<CoreProtectSupport> coreProtect = packModule.coreProtectSupport();
         for (Block block : placement.getBlocksAffectedByPlacement(
                 direction,
                 orientation,
                 parent
         )) {
+            if(player != null)
+                coreProtect.ifPresent(support -> support.logCustomBlockBreak(player, block));
             level.setState(
                     block.getX(),
                     block.getY(),

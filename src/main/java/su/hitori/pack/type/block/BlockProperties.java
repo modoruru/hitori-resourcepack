@@ -2,6 +2,7 @@ package su.hitori.pack.type.block;
 
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import su.hitori.pack.type.block.behaviour.BehaviourProperties;
 import su.hitori.pack.type.block.placement.OrientationProperties;
 import su.hitori.pack.type.block.placement.PlacementProperties;
@@ -11,9 +12,9 @@ public final class BlockProperties {
 
     private final Key key;
 
-    private PlacementProperties placementProperties = SolidPlacementProperties.createCuboid(OrientationProperties.createLocked(Orientation.FLOOR), false, true, 1, 1, 1);
-    private BehaviourProperties behaviourProperties;
-    private Key itemToDrop;
+    private @Nullable PlacementProperties placementProperties = SolidPlacementProperties.createCuboid(OrientationProperties.createLocked(Orientation.FLOOR), false, true, 1, 1, 1);
+    private @Nullable BehaviourProperties behaviourProperties;
+    private @Nullable Key itemToDrop;
 
     public BlockProperties(@NotNull Key key) {
         this.key = key;
@@ -23,30 +24,30 @@ public final class BlockProperties {
         return key;
     }
 
-    public BlockProperties placementProperties(PlacementProperties placementProperties) {
+    public BlockProperties placementProperties(@Nullable PlacementProperties placementProperties) {
         this.placementProperties = placementProperties;
         return this;
     }
 
-    public PlacementProperties placementProperties() {
+    public @Nullable PlacementProperties placementProperties() {
         return placementProperties;
     }
 
-    public BlockProperties behaviourProperties(BehaviourProperties behaviourProperties) {
+    public BlockProperties behaviourProperties(@Nullable BehaviourProperties behaviourProperties) {
         this.behaviourProperties = behaviourProperties;
         return this;
     }
 
-    public BehaviourProperties behaviourProperties() {
+    public @Nullable BehaviourProperties behaviourProperties() {
         return behaviourProperties;
     }
 
-    public BlockProperties itemToDrop(Key itemToDrop) {
+    public BlockProperties itemToDrop(@Nullable Key itemToDrop) {
         this.itemToDrop = itemToDrop;
         return this;
     }
 
-    public Key itemToDrop() {
+    public @Nullable Key itemToDrop() {
         return itemToDrop;
     }
 

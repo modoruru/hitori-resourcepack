@@ -2,7 +2,6 @@ package su.hitori.pack.pose.event;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 public final class PlayerStopPoseEvent extends PlayerPoseEvent {
 
@@ -13,7 +12,7 @@ public final class PlayerStopPoseEvent extends PlayerPoseEvent {
     }
 
     @Override
-    public @NotNull HandlerList getHandlers() {
+    public HandlerList getHandlers() {
         return HANDLER_LIST;
     }
 

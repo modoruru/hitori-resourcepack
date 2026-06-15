@@ -11,7 +11,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import su.hitori.api.registry.Registry;
 import su.hitori.api.util.Messages;
 import su.hitori.api.util.Text;
@@ -19,9 +18,9 @@ import su.hitori.pack.type.item.CustomItem;
 
 public final class GiveCommand extends CommandAPICommand {
 
-    private final Registry<@NotNull CustomItem> registry;
+    private final Registry<CustomItem> registry;
 
-    public GiveCommand(Registry<@NotNull CustomItem> registry) {
+    public GiveCommand(Registry<CustomItem> registry) {
         super("give");
         this.registry = registry;
 

@@ -5,10 +5,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.hitori.pack.type.block.CustomBlock;
 
+import java.util.Collection;
 import java.util.List;
 
 public final class CustomBlockPlaceEvent extends Event implements Cancellable {
@@ -23,21 +23,21 @@ public final class CustomBlockPlaceEvent extends Event implements Cancellable {
 
     private boolean cancelled;
 
-    public CustomBlockPlaceEvent(CustomBlock customBlock, List<Block> changedBlocks, @Nullable Player player) {
+    public CustomBlockPlaceEvent(CustomBlock customBlock, Collection<Block> changedBlocks, @Nullable Player player) {
         this.customBlock = customBlock;
         this.changedBlocks = List.copyOf(changedBlocks);
         this.player = player;
     }
 
-    public CustomBlock getCustomBlock() {
+    public CustomBlock customBlock() {
         return customBlock;
     }
 
-    public List<Block> getChangedBlocks() {
+    public List<Block> changedBlocks() {
         return List.copyOf(changedBlocks);
     }
 
-    public @Nullable Player getPlayer() {
+    public @Nullable Player player() {
         return player;
     }
 
@@ -52,7 +52,7 @@ public final class CustomBlockPlaceEvent extends Event implements Cancellable {
     }
 
     @Override
-    public @NotNull HandlerList getHandlers() {
+    public HandlerList getHandlers() {
         return getHandlerList();
     }
 

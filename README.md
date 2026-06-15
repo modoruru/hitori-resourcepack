@@ -1,5 +1,5 @@
 # resourcepack
-[Русская версия](./README_ru.md)
+[Русская версия](./README_ru.md) | [Contributing](https://github.com/modoruru/.github/blob/main/CONTRIBUTING.md)
 
 This repo contains resourcepack module for [hitori](https://github.com/modoruru/hitori) framework.\
 This module is basically an API for another modules. It itself contains almost no mechanics.

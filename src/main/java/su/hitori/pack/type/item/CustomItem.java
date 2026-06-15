@@ -1,35 +1,22 @@
 package su.hitori.pack.type.item;
 
+import io.papermc.paper.datacomponent.DataComponentType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.food.FoodProperties;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.inventory.components.CraftFoodComponent;
-import org.bukkit.craftbukkit.inventory.components.CraftJukeboxComponent;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.components.ToolComponent;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.tag.DamageTypeTags;
 import org.jetbrains.annotations.NotNull;
 import su.hitori.api.registry.Registry;
 import su.hitori.api.util.KeyUtil;
-import su.hitori.api.util.Text;
-import su.hitori.pack.type.ItemModel;
+import su.hitori.api.util.UnsafeUtil;
 
-import java.util.Map;
 import java.util.Optional;
 
+@SuppressWarnings("UnstableApiUsage")
 public record CustomItem(ItemProperties properties) implements Keyed {
 
-    public static final int DISABLED = -1;
     public static final NamespacedKey ITEM_ID = KeyUtil.create("item");
 
     public static Optional<Key> getId(ItemStack stack) {
@@ -43,76 +30,36 @@ public record CustomItem(ItemProperties properties) implements Keyed {
     }
 
     @Override
-    public @NotNull Key key() {
+    public Key key() {
         return properties.key();
+    }
+
+    public ItemStack create(int amount) {
+        ItemStack stack = create();
+        stack.setAmount(amount);
+        return stack;
     }
 
     public ItemStack create() {
         ItemStack stack = new ItemStack(properties.type());
 
-        stack.addItemFlags(properties.flags().toArray(new ItemFlag[0]));
+        for (DataComponentType.Valued<?> valuedComponentType : properties.valuedComponentTypes()) {
+            Object value = UnsafeUtil.cast(properties.valuedComponent(valuedComponentType));
 
-        stack.editMeta(meta -> {
-            FoodProperties food = properties.food();
-            if(food != null) meta.setFood(new CraftFoodComponent(food));
+            if(value == null) stack.unsetData(valuedComponentType);
+            else stack.setData(UnsafeUtil.cast(valuedComponentType), value);
+        }
 
-            ToolComponent tool = properties.tool();
-            meta.setTool(tool);
+        for (DataComponentType.NonValued nonValuedComponentType : properties.toSetNonValuedComponentTypes()) {
+            stack.setData(nonValuedComponentType);
+        }
 
-            meta.setEnchantmentGlintOverride(properties.glintOverride());
+        for (DataComponentType.NonValued nonValuedComponentType : properties.toUnsetNonValuedComponentTypes()) {
+            stack.unsetData(nonValuedComponentType);
+        }
 
-            Boolean fire = properties.fireResistant();
-            if(fire != null) meta.setDamageResistant(fire ? DamageTypeTags.IS_FIRE : null);
-
-            int durability = properties.durability();
-            if(durability != DISABLED) ((Damageable) meta).setMaxDamage(durability);
-
-            Boolean tooltip = properties.hideTooltip();
-            if(tooltip != null) meta.setHideTooltip(tooltip);
-
-            var jukebox = properties.jukebox();
-            if(jukebox != null) meta.setJukeboxPlayable(new CraftJukeboxComponent(jukebox));
-
-            var unbreakable = properties.unbreakable();
-            if(unbreakable != null) meta.setUnbreakable(unbreakable);
-
-            Optional.ofNullable(properties.itemModel())
-                    .map(ItemModel::resolve)
-                    .ifPresent(meta::setItemModel);
-
-            int maxStackSize = properties.maxStackSize();
-            meta.setMaxStackSize(maxStackSize == DISABLED ? null : maxStackSize);
-
-            meta.setEquippable(properties.equipment());
-
-            meta.displayName(properties.name().decoration(TextDecoration.ITALIC, false));
-
-            meta.setRarity(properties.rarity());
-
-            meta.getPersistentDataContainer().set(ITEM_ID, PersistentDataType.STRING, key().asString());
-
-            var attributeModifiers = properties.attributeModifiers();
-            for (Map.Entry<Attribute, AttributeModifier> attributeModifier : attributeModifiers) {
-                meta.addAttributeModifier(
-                        attributeModifier.getKey(),
-                        attributeModifier.getValue()
-                );
-            }
-        });
-
-        var lore = properties.lore();
-        if(!lore.isEmpty()) stack.lore(
-                lore.stream()
-                        .map(row -> Text.create(row).decoration(TextDecoration.ITALIC, false))
-                        .toList()
-        );
-
-        net.minecraft.world.item.ItemStack nms = CraftItemStack.asNMSCopy(stack);
-        var builder = DataComponentPatch.builder();
-        if(properties.consumable() != null) builder.set(DataComponents.CONSUMABLE, properties.consumable());
-        if(properties.potion() != null) builder.set(DataComponents.POTION_CONTENTS, properties.potion());
-        nms.applyComponents(builder.build());
-        stack = CraftItemStack.asBukkitCopy(nms);
+        if(properties.itemModel() != null)
+            stack.setData(DataComponentTypes.ITEM_MODEL, properties.itemModel().resolve());
 
         return stack;
     }

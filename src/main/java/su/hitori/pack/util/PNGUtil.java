@@ -1,5 +1,6 @@
 package su.hitori.pack.util;
 
+import org.jetbrains.annotations.Nullable;
 import su.hitori.api.Pair;
 
 /**
@@ -47,7 +48,7 @@ public final class PNGUtil {
      * @param data png data
      * @return Pair containing width and height of image inside the data or null if data is not in PNG format
      */
-    public static Pair<Integer, Integer> getImageDimensions(byte[] data) {
+    public static @Nullable Pair<Integer, Integer> getImageDimensions(byte[] data) {
         if(!isPNGData(data)) return null;
         return Pair.of(
                 readInt(data, 16),

@@ -4,7 +4,13 @@ plugins {
     id("maven-publish")
 }
 
-val defaultJavaVersion = 23
+val defaultJavaVersion = "23"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(properties.getOrDefault("java", defaultJavaVersion) as String))
+    }
+}
 
 repositories {
     mavenCentral()
@@ -38,7 +44,7 @@ dependencies {
     compileOnly("dev.jorel:commandapi-paper-core:11.0.0")
     compileOnly("com.github.modoruru:hitori:${properties.getOrDefault("hitori_version", "")}")
 
-    compileOnly("net.coreprotect:coreprotect:23.0")
+    compileOnly("net.coreprotect:coreprotect:23.2")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.16-SNAPSHOT")
     compileOnly("net.skinsrestorer:skinsrestorer-api:15.10.0")
 }

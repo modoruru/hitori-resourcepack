@@ -5,10 +5,7 @@ import su.hitori.api.util.Either;
 import su.hitori.pack.generation.GenerationContext;
 import su.hitori.pack.type.AssetsSource;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +86,6 @@ public final class AssetsConveyor extends AbstractConveyor<AssetsSource> {
 
     private static void unzip(File destination, File zip, AssetsSource.CopyBehaviour behaviour) {
         try {
-            byte[] buffer = new byte[4096];
             ZipInputStream zis = new ZipInputStream(new FileInputStream(zip.getPath()));
             ZipEntry entry = zis.getNextEntry();
             while (entry != null) {
@@ -103,6 +99,7 @@ public final class AssetsConveyor extends AbstractConveyor<AssetsSource> {
                 else if(output.exists()) {
                     switch (behaviour) {
                         case SKIP, MERGE_OR_SKIP -> {
+                            entry = zis.getNextEntry();
                             continue;
                         }
                         default -> {}
@@ -115,15 +112,18 @@ public final class AssetsConveyor extends AbstractConveyor<AssetsSource> {
                 }
 
                 FileOutputStream fos = new FileOutputStream(output);
-                int len;
-                while ((len = zis.read(buffer)) > 0) {
-                    fos.write(buffer, 0, len);
-                }
+                zis.transferTo(fos);
+                fos.flush();
                 fos.close();
+
+                entry = zis.getNextEntry();
             }
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (Throwable exception) {
+            StringWriter writer = new StringWriter();
+            PrintWriter pw = new PrintWriter(writer);
+            exception.printStackTrace(pw);
+            GeneratorImpl.LOGGER.severe(writer.toString());
         }
     }
 

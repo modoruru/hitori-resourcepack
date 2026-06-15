@@ -23,7 +23,10 @@ import su.hitori.pack.pose.event.PoseType;
 import su.hitori.pack.pose.lie.LyingPose;
 import su.hitori.pack.pose.seat.SeatPose;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,11 +48,11 @@ public final class PoseService {
 
     private final Map<Player, CrawlPose> crawlPoseByCrawling = new HashMap<>();
 
-    public SeatPose getSeatPoseByRider(Player entity) {
+    public @Nullable SeatPose getSeatPoseByRider(Player entity) {
         return seatByRider.get(entity);
     }
 
-    public LyingPose getLyingPoseByRider(Player entity) {
+    public @Nullable LyingPose getLyingPoseByRider(Player entity) {
         return lyingPoseByRider.get(entity);
     }
 
@@ -57,7 +60,7 @@ public final class PoseService {
         return lyingPoseByBlock.get(block);
     }
 
-    public CrawlPose getCrawlPoseByCrawling(Player player) {
+    public @Nullable CrawlPose getCrawlPoseByCrawling(Player player) {
         return crawlPoseByCrawling.get(player);
     }
 
@@ -75,7 +78,7 @@ public final class PoseService {
         return blocked.contains(player);
     }
 
-    public SeatPose getSeatPoseOnBlock(Block block) {
+    public @Nullable SeatPose getSeatPoseOnBlock(Block block) {
         return seatByBlock.get(block);
     }
 
@@ -86,7 +89,7 @@ public final class PoseService {
         return event.callEvent();
     }
 
-    public CrawlPose createCrawlPose(Player player) {
+    public @Nullable CrawlPose createCrawlPose(Player player) {
         if(!callEvent(player, PoseType.CRAWL, true)) return null;
 
         CrawlPose crawlPose = new CrawlPose(this, player);
@@ -96,11 +99,11 @@ public final class PoseService {
         return crawlPose;
     }
 
-    public LyingPose createLyingPose(Block block, Player player) {
+    public @Nullable LyingPose createLyingPose(Block block, Player player) {
         return createLyingPose(block, player, 0d, 0d, 0d, player.getLocation().getYaw(), true);
     }
 
-    public LyingPose createLyingPose(Block block, Player player, double xOffset, double yOffset, double zOffset, float seatRotation, boolean sitInBlockCenter) {
+    public @Nullable LyingPose createLyingPose(Block block, Player player, double xOffset, double yOffset, double zOffset, float seatRotation, boolean sitInBlockCenter) {
         if(!callEvent(player, PoseType.LIE, true)) return null;
 
         Location seatLocation = createSeatLocation(block, player.getLocation(), xOffset, yOffset, zOffset, sitInBlockCenter);
@@ -117,11 +120,11 @@ public final class PoseService {
         return lyingPose;
     }
 
-    public SeatPose createSeatPose(Block block, Player player) {
+    public @Nullable SeatPose createSeatPose(Block block, Player player) {
         return createSeatPose(block, player, true, 0d, 0d, 0d, player.getLocation().getYaw(), true);
     }
 
-    public SeatPose createSeatPose(Block block, Player rider, boolean canRotate, double xOffset, double yOffset, double zOffset, float seatRotation, boolean sitInBlockCenter) {
+    public @Nullable SeatPose createSeatPose(Block block, Player rider, boolean canRotate, double xOffset, double yOffset, double zOffset, float seatRotation, boolean sitInBlockCenter) {
         if(blocked.contains(rider)) return null;
         if(!callEvent(rider, PoseType.SEAT, true)) return null;
 
@@ -163,6 +166,8 @@ public final class PoseService {
             Bukkit.getPluginManager().callEvent(playerMoveEvent);
             if(playerMoveEvent.isCancelled()) return;
         }
+
+        seatByBlock.remove(seatPose.getBlock());
 
         seatPose.setBlock(seatPose.getBlock().getRelative(blockDirection));
         seatPose.setLocation(seatPose.getLocation().add(blockDirection.getModX(), blockDirection.getModY(), blockDirection.getModZ()));
@@ -246,7 +251,7 @@ public final class PoseService {
         }
     }
 
-    public SeatPose createStairSeatForEntity(Block block, Player entity) {
+    public @Nullable SeatPose createStairSeatForEntity(Block block, Player entity) {
         Stairs stairs = (Stairs) block.getBlockData();
         if(stairs.getHalf() != Bisected.Half.BOTTOM) return createSeatPose(block, entity);
 

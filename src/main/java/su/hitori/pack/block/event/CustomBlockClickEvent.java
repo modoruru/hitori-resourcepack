@@ -4,7 +4,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import su.hitori.pack.type.block.CustomBlock;
 
 public final class CustomBlockClickEvent extends Event {
@@ -44,7 +43,7 @@ public final class CustomBlockClickEvent extends Event {
     }
 
     @Override
-    public @NotNull HandlerList getHandlers() {
+    public HandlerList getHandlers() {
         return HANDLER_LIST;
     }
 

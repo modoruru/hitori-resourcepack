@@ -2,7 +2,6 @@ package su.hitori.pack.type.block;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.jetbrains.annotations.NotNull;
 
 public record CustomBlock(BlockProperties blockProperties) implements Keyed {
 
@@ -12,7 +11,7 @@ public record CustomBlock(BlockProperties blockProperties) implements Keyed {
     }
 
     @Override
-    public @NotNull Key key() {
+    public Key key() {
         return blockProperties.key();
     }
 

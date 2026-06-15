@@ -3,7 +3,6 @@ package su.hitori.pack.pose.event;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 public final class PlayerStartPoseEvent extends PlayerPoseEvent implements Cancellable {
 
@@ -16,7 +15,7 @@ public final class PlayerStartPoseEvent extends PlayerPoseEvent implements Cance
     }
 
     @Override
-    public @NotNull HandlerList getHandlers() {
+    public HandlerList getHandlers() {
         return HANDLER_LIST;
     }
 

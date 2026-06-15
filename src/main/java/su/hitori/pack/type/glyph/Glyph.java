@@ -2,7 +2,6 @@ package su.hitori.pack.type.glyph;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
@@ -19,7 +18,7 @@ public record Glyph(GlyphSnapshot glyphSnapshot, int index, boolean temp) implem
     }
 
     @Override
-    public @NotNull Key key() {
+    public Key key() {
         return glyphSnapshot.key();
     }
 }

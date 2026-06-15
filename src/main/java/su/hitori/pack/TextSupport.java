@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import su.hitori.api.registry.Registry;
 import su.hitori.api.util.Text;
 import su.hitori.pack.impl.GlyphConveyor;
@@ -16,7 +17,7 @@ final class TextSupport {
 
     private final Registry<@NotNull Glyph> glyphRegistry;
 
-    private UUID tagResolverUid;
+    private @Nullable UUID tagResolverUid;
 
     TextSupport(Registry<@NotNull Glyph> glyphRegistry) {
         this.glyphRegistry = glyphRegistry;
