@@ -1,6 +1,7 @@
 package su.hitori.pack.type.item;
 
 import io.papermc.paper.datacomponent.DataComponentType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 import org.bukkit.NamespacedKey;
@@ -29,8 +30,14 @@ public record CustomItem(ItemProperties properties) implements Keyed {
     }
 
     @Override
-    public @NotNull Key key() {
+    public Key key() {
         return properties.key();
+    }
+
+    public ItemStack create(int amount) {
+        ItemStack stack = create();
+        stack.setAmount(amount);
+        return stack;
     }
 
     public ItemStack create() {
@@ -50,6 +57,9 @@ public record CustomItem(ItemProperties properties) implements Keyed {
         for (DataComponentType.NonValued nonValuedComponentType : properties.toUnsetNonValuedComponentTypes()) {
             stack.unsetData(nonValuedComponentType);
         }
+
+        if(properties.itemModel() != null)
+            stack.setData(DataComponentTypes.ITEM_MODEL, properties.itemModel().resolve());
 
         return stack;
     }

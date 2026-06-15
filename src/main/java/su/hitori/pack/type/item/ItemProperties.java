@@ -30,8 +30,8 @@ public final class ItemProperties {
     private final Map<DataComponentType.Valued<?>, Object> dataComponents;
     private final Set<DataComponentType.NonValued> toSet, toUnset;
 
-    private ItemModel itemModel;
-    private Key customBlock;
+    private @Nullable ItemModel itemModel;
+    private @Nullable Key customBlock;
 
     public ItemProperties(@NotNull Key key) {
         this.key = key;
@@ -118,12 +118,12 @@ public final class ItemProperties {
         return toUnset.contains(nonValuedComponentType);
     }
 
-    public ItemProperties itemModel(ItemModel itemModel) {
+    public ItemProperties itemModel(@Nullable ItemModel itemModel) {
         this.itemModel = itemModel;
         return this;
     }
 
-    public ItemModel itemModel() {
+    public @Nullable ItemModel itemModel() {
         return itemModel;
     }
 
@@ -132,7 +132,7 @@ public final class ItemProperties {
         return this;
     }
 
-    public Key customBlock() {
+    public @Nullable Key customBlock() {
         return customBlock;
     }
 
