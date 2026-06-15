@@ -30,13 +30,13 @@ final class Region {
     }
 
     boolean unloadChunk(int chunkX, int chunkZ, boolean save) {
-        var localCoords = PosUtil.getChunkCoordsInRegion(chunkX, chunkZ);
-        long key = PosUtil.getChunkKey(localCoords.first(), localCoords.second());
+        var localCoordinates = PosUtil.getChunkCoordsInRegion(chunkX, chunkZ);
+        long key = PosUtil.getChunkKey(localCoordinates.first(), localCoordinates.second());
 
         Chunk chunk = CHUNKS.remove(key);
         boolean empty = CHUNKS.isEmpty();
         if(chunk == null || !save) return empty;
-        regionFileHandle.putChunkData(localCoords.first(), localCoords.second(), chunk);
+        regionFileHandle.putChunkData(localCoordinates.first(), localCoordinates.second(), chunk);
 
         if(empty) regionFileHandle.save();
 
@@ -45,8 +45,8 @@ final class Region {
 
     void save() {
         for (Map.Entry<Long, Chunk> entry : CHUNKS.entrySet()) {
-            var coords = PosUtil.getChunkCoordsFromKey(entry.getKey());
-            regionFileHandle.putChunkData(coords.first(), coords.second(), entry.getValue());
+            var coordinates = PosUtil.getChunkCoordsFromKey(entry.getKey());
+            regionFileHandle.putChunkData(coordinates.first(), coordinates.second(), entry.getValue());
         }
         regionFileHandle.save();
     }

@@ -1,5 +1,6 @@
 package su.hitori.pack.type;
 
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import su.hitori.api.util.IOUtil;
 import su.hitori.api.util.JSONUtil;
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 public record Texture(byte[] data, Optional<JSONObject> meta) {
 
-    public static Texture readFile(File file) {
+    public static @Nullable Texture readFile(File file) {
         if(!file.exists()) return null;
 
         JSONObject meta;

@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
+import org.jetbrains.annotations.Nullable;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.block.PosUtil;
 
@@ -17,7 +18,7 @@ public final class Level {
     private final Key key;
     final Map<Long, Region> REGIONS = new HashMap<>();
 
-    private World bukkit;
+    private @Nullable World bukkit;
 
     public Level(Key key) {
         this.key = key;
@@ -71,8 +72,11 @@ public final class Level {
     }
 
     public World getWorld() {
-        if(bukkit == null)
-            return bukkit = Bukkit.getWorld(key);
+        if(bukkit == null) {
+            bukkit = Bukkit.getWorld(key);
+            assert bukkit != null;
+            return bukkit;
+        }
         return bukkit;
     }
 

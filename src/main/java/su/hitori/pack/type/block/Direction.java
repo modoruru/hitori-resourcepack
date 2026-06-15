@@ -1,5 +1,7 @@
 package su.hitori.pack.type.block;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.function.Function;
 
 public enum Direction {
@@ -13,11 +15,11 @@ public enum Direction {
     WEST(pos -> new LocalPos(-pos.z(), pos.y(), -pos.x()), "east", 90),
     WEST_NORTH(null, "east_south", 135);
 
-    private final Function<LocalPos, LocalPos> posWrapper;
+    private final @Nullable Function<LocalPos, LocalPos> posWrapper;
     private final String oppositeName;
     private final float yaw;
 
-    Direction(Function<LocalPos, LocalPos> posWrapper, String oppositeName, float yaw) {
+    Direction(@Nullable Function<LocalPos, LocalPos> posWrapper, String oppositeName, float yaw) {
         this.posWrapper = posWrapper;
         this.oppositeName = oppositeName.toUpperCase();
         this.yaw = yaw;

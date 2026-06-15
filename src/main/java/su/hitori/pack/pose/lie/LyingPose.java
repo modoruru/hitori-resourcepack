@@ -27,6 +27,7 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import su.hitori.api.nms.NMSUtil;
 import su.hitori.api.util.Task;
 import su.hitori.pack.pose.PoseService;
@@ -65,9 +66,9 @@ public final class LyingPose {
     private ClientboundTeleportEntityPacket teleportNpcPacket;
 
     private Set<Player> nearbyPlayers = new HashSet<>();
-    private ClientboundBundlePacket initializationBundle;
-    private NonNullList<ItemStack> equipmentCache;
-    private ItemStack mainHandCache;
+    private @Nullable ClientboundBundlePacket initializationBundle;
+    private @Nullable NonNullList<ItemStack> equipmentCache;
+    private @Nullable ItemStack mainHandCache;
 
     public LyingPose(SeatPose seatPose) {
         this.seatPose = seatPose;

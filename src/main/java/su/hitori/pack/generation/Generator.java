@@ -2,7 +2,6 @@ package su.hitori.pack.generation;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
 import su.hitori.api.Pair;
 import su.hitori.api.module.ModuleDescriptor;
@@ -11,7 +10,6 @@ import su.hitori.pack.generation.supplier.GenerationSupplier;
 import java.io.File;
 import java.util.Optional;
 
-@NotNullByDefault
 public interface Generator {
 
     boolean generate();

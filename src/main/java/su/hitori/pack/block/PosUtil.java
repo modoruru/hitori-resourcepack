@@ -1,7 +1,9 @@
 package su.hitori.pack.block;
 
+import org.jetbrains.annotations.ApiStatus;
 import su.hitori.api.Pair;
 
+@ApiStatus.Internal
 public final class PosUtil {
 
     private static final int BLOCK_SHIFT_X = 0;

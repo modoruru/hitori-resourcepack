@@ -1,7 +1,6 @@
 package su.hitori.pack.block;
 
 import org.bukkit.block.Block;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
@@ -29,7 +28,7 @@ public record BlockPos(int x, int y, int z) {
     }
 
     @Override
-    public @NonNull String toString() {
+    public String toString() {
         return "BlockPos{" +
                 "x=" + x +
                 ", y=" + y +

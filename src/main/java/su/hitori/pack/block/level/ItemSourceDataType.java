@@ -12,22 +12,22 @@ final class ItemSourceDataType implements PersistentDataType<byte[], ItemStack> 
     private ItemSourceDataType() {}
 
     @Override
-    public @NotNull Class<byte[]> getPrimitiveType() {
+    public Class<byte[]> getPrimitiveType() {
         return byte[].class;
     }
 
     @Override
-    public @NotNull Class<ItemStack> getComplexType() {
+    public Class<ItemStack> getComplexType() {
         return ItemStack.class;
     }
 
     @Override
-    public byte @NotNull [] toPrimitive(@NotNull ItemStack complex, @NotNull PersistentDataAdapterContext context) {
+    public byte @NotNull [] toPrimitive(ItemStack complex, @NotNull PersistentDataAdapterContext context) {
         return complex.serializeAsBytes();
     }
 
     @Override
-    public @NotNull ItemStack fromPrimitive(byte @NotNull [] primitive, @NotNull PersistentDataAdapterContext context) {
+    public ItemStack fromPrimitive(byte @NotNull [] primitive, @NotNull PersistentDataAdapterContext context) {
         return ItemStack.deserializeBytes(primitive);
     }
 
