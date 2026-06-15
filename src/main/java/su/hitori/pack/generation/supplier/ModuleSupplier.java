@@ -2,7 +2,6 @@ package su.hitori.pack.generation.supplier;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.jetbrains.annotations.NotNull;
 import su.hitori.api.module.ModuleDescriptor;
 
 import java.util.Collection;
@@ -43,7 +42,7 @@ public final class ModuleSupplier<E extends Keyed> implements GenerationSupplier
     }
 
     @Override
-    public @NotNull Key key() {
+    public Key key() {
         return key;
     }
 

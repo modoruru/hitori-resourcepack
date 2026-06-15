@@ -6,6 +6,7 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.jetbrains.annotations.Nullable;
 import su.hitori.api.logging.LoggerFactory;
 import su.hitori.pack.pose.seat.SeatPoseEntity;
 
@@ -17,7 +18,7 @@ final class PoseUtil {
 
     private static final Logger LOGGER = LoggerFactory.instance().create(PoseUtil.class);
 
-    private static Field entityManagerField;
+    private static @Nullable Field entityManagerField;
 
     static {
         Field entityManagerField = null;
@@ -43,7 +44,7 @@ final class PoseUtil {
         );
     }
 
-    public static org.bukkit.entity.Entity createSeatEntity(Location location, org.bukkit.entity.Entity rider, boolean canRotate) {
+    public static @Nullable org.bukkit.entity.Entity createSeatEntity(Location location, org.bukkit.entity.Entity rider, boolean canRotate) {
         if(rider == null || !rider.isValid()) return null;
 
         Entity nmsRider = ((CraftEntity) rider).getHandle();

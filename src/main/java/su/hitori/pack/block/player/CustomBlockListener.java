@@ -82,10 +82,6 @@ public final class CustomBlockListener implements Listener {
         lastActionTime.remove(event.getPlayer().getUniqueId());
     }
 
-    private long diff(long a, long b) {
-        return Math.max(a, b) - Math.min(a, b);
-    }
-
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -98,7 +94,7 @@ public final class CustomBlockListener implements Listener {
         assert hand != null && block != null;
 
         long now = System.currentTimeMillis();
-        long diff = (long) (diff(lastActionTime.getOrDefault(playerUid, -1L), now) / 20d);
+        long diff = (long) (Math.abs(lastActionTime.getOrDefault(playerUid, -1L) - now) / 20d);
 
         // it seems issue with multiple calls from one click is now fixed
         if(diff == 0 || diff == 1) {

@@ -2,7 +2,6 @@ package su.hitori.pack.type;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import su.hitori.api.Pair;
 import su.hitori.api.util.FileUtil;
@@ -47,7 +46,7 @@ public record Translations(Key key, Map<Locale, Map<String, String>> locales) im
     }
 
     @Override
-    public @NotNull Key key() {
+    public Key key() {
         return key;
     }
 

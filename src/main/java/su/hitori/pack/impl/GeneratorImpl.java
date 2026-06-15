@@ -4,16 +4,12 @@ import io.papermc.paper.ServerBuildInfo;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import su.hitori.api.Pair;
 import su.hitori.api.logging.LoggerFactory;
 import su.hitori.api.module.ModuleDescriptor;
-import su.hitori.api.util.FileUtil;
-import su.hitori.api.util.JSONUtil;
-import su.hitori.api.util.Pipeline;
-import su.hitori.api.util.Task;
+import su.hitori.api.util.*;
 import su.hitori.pack.PackModule;
 import su.hitori.pack.generation.ErrorStack;
 import su.hitori.pack.generation.GenerationContext;
@@ -33,7 +29,6 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-@NotNullByDefault
 public final class GeneratorImpl implements Generator {
 
     public static final Logger LOGGER = LoggerFactory.instance().create(Generator.class);
@@ -270,7 +265,7 @@ public final class GeneratorImpl implements Generator {
                 objectType.getName()
         ));
 
-        return (GenerationConveyor<E>) wrapper.conveyor;
+        return UnsafeUtil.cast(wrapper.conveyor);
     }
 
     @Override

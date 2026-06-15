@@ -1,7 +1,6 @@
 package su.hitori.pack.impl;
 
 import net.kyori.adventure.key.Key;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import su.hitori.api.util.FileUtil;
 import su.hitori.pack.generation.GenerationContext;
@@ -43,7 +42,7 @@ public final class TranslationsConveyor extends AbstractConveyor<Translations> {
         collectingOrGenerating = false;
     }
 
-    private @NotNull Map<Translations.Locale, JSONObject> combineLanguages() {
+    private Map<Translations.Locale, JSONObject> combineLanguages() {
         Map<Translations.Locale, JSONObject> languages = new HashMap<>();
 
         for (Translations value : snapshots.values()) {

@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -75,7 +74,7 @@ public final class LevelService {
 
     private final AtomicBoolean performingCheck;
 
-    private Task validateTask;
+    private @Nullable Task validateTask;
     private boolean loaded;
 
     public LevelService(PackModule packModule, CombinedProtectionService combinedProtectionService, Registry<@NotNull CustomBlock> blockRegistry, Registry<@NotNull CustomItem> itemRegistry) {
@@ -105,7 +104,7 @@ public final class LevelService {
                 Block center = bukkitEntity.getLocation().getBlock();
 
                 BlockState state = level.getState(center.getX(), center.getY(), center.getZ());
-                if(state == null) continue;
+                if(state.isEmpty()) continue;
 
                 CustomBlock customBlock = blockRegistry.get(state.key());
                 if(customBlock == null) continue;
@@ -140,11 +139,11 @@ public final class LevelService {
         performingCheck.set(false);
     }
 
-    public Level getLevel(Key key) {
+    public @Nullable Level getLevel(Key key) {
         return levels.get(key);
     }
 
-    public Level getLevel(World world) {
+    public @Nullable Level getLevel(World world) {
         return getLevel(world.getKey());
     }
 
@@ -185,6 +184,8 @@ public final class LevelService {
         if(block.getType() != Material.BARRIER && block.getType() != Material.AIR) return;
 
         Level windmillLevel = getLevel(block.getWorld());
+        if(windmillLevel == null) return;
+
         BlockState state = windmillLevel.getState(block.getX(), block.getY(), block.getZ());
         if(state.isEmpty()) return;
 
@@ -245,7 +246,10 @@ public final class LevelService {
         if(!loaded) return;
         loaded = false;
 
-        validateTask.cancel();
+        if(validateTask != null) {
+            validateTask.cancel();
+            validateTask = null;
+        }
 
         for (Level level : levels.values()) {
             level.unload();
@@ -315,6 +319,7 @@ public final class LevelService {
 
         World world = center.getWorld();
         Level level = getLevel(world);
+        assert level != null;
 
         if(!placementProperties.canBePlaced(direction, orientation, center, center, level, ignoreEntities) || !combinedProtectionService.isAbleToBreak(center, whoPlaced)) return false;
 

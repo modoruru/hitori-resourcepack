@@ -14,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -28,6 +29,7 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import su.hitori.api.util.Task;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.block.level.Level;
@@ -46,7 +48,7 @@ public final class PlayerBlocksInjection extends ChannelInboundHandlerAdapter {
     private final LevelService levelService;
 
     // temp fields
-    private BlockPos destroyPos = null;
+    private @Nullable BlockPos destroyPos = null;
 
     private boolean breakingBlock = false;
     private int lastSentState = 0;
@@ -117,6 +119,7 @@ public final class PlayerBlocksInjection extends ChannelInboundHandlerAdapter {
 
         if(action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
             Level level = getLevel();
+            assert level != null;
             BlockState state = level.getState(pos.getX(), pos.getY(), pos.getZ());
             if(state.isEmpty() || player.getBukkitEntity().getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ()).getType() != Material.BARRIER) return false;
 
@@ -154,6 +157,8 @@ public final class PlayerBlocksInjection extends ChannelInboundHandlerAdapter {
         Task.runEntity(player.getBukkitEntity(), () -> {
             if(!breakingBlock) return;
             Level level = getLevel();
+            assert level != null && destroyPos != null;
+
             levelService.removeCustomBlock(
                     level.getWorld().getBlockAt(destroyPos.getX(), destroyPos.getY(), destroyPos.getZ()),
                     true,
@@ -200,7 +205,7 @@ public final class PlayerBlocksInjection extends ChannelInboundHandlerAdapter {
         return (float) (getDestroySpeed() / 0.3 / 100);
     }
 
-    private Level getLevel() {
+    private @Nullable Level getLevel() {
         return levelService.getLevel(Key.key(player.level().getTypeKey().identifier().toString()));
     }
 
@@ -211,7 +216,10 @@ public final class PlayerBlocksInjection extends ChannelInboundHandlerAdapter {
         if(MobEffectUtil.hasDigSpeed(player)) destroySpeed *= 1.0F + (float) (MobEffectUtil.getDigSpeedAmplification(player) + 1) * 0.2F;
 
         if(player.hasEffect(MobEffects.MINING_FATIGUE)) {
-            destroySpeed *= switch (player.getEffect(MobEffects.MINING_FATIGUE).getAmplifier()) {
+            MobEffectInstance effectInstance = player.getEffect(MobEffects.MINING_FATIGUE);
+            assert effectInstance != null;
+
+            destroySpeed *= switch (effectInstance.getAmplifier()) {
                 case 0 -> 0.3F;
                 case 1 -> 0.09F;
                 case 2 -> 0.0027F;

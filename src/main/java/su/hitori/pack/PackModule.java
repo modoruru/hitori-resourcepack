@@ -2,6 +2,7 @@ package su.hitori.pack;
 
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import su.hitori.api.module.Module;
 import su.hitori.api.module.enable.EnableContext;
 import su.hitori.api.registry.Registry;
@@ -35,16 +36,16 @@ import java.util.concurrent.Executors;
 
 public final class PackModule extends Module {
 
-    private ExecutorService executorService;
-    private GeneratorImpl generator;
-    private PackServer packServer;
-    private BuiltInConveyors builtInConveyors;
-    private PoseService poseService;
+    private @Nullable ExecutorService executorService;
+    private @Nullable GeneratorImpl generator;
+    private @Nullable PackServer packServer;
+    private @Nullable BuiltInConveyors builtInConveyors;
+    private @Nullable PoseService poseService;
 
-    private LevelService levelService;
-    private TextSupport textSupport;
+    private @Nullable LevelService levelService;
+    private @Nullable TextSupport textSupport;
 
-    private CoreProtectSupport coreProtectSupport;
+    private @Nullable CoreProtectSupport coreProtectSupport;
 
     @Override
     public void enable(EnableContext context) {
@@ -104,6 +105,7 @@ public final class PackModule extends Module {
 
     @Override
     public void disable() {
+        assert packServer != null && levelService != null && textSupport != null && poseService != null;
         packServer.stop();
         levelService.unload();
         textSupport.unload();
@@ -111,22 +113,27 @@ public final class PackModule extends Module {
     }
 
     public ExecutorService executorService() {
+        assert executorService != null;
         return executorService;
     }
 
     public Generator generator() {
+        assert generator != null;
         return generator;
     }
 
     public PackServer packServer() {
+        assert packServer != null;
         return packServer;
     }
 
     public RegistryAccess registryAccess() {
+        assert builtInConveyors != null;
         return builtInConveyors;
     }
 
     public PoseService poseService() {
+        assert poseService != null;
         return poseService;
     }
 
