@@ -40,8 +40,8 @@ public final class ItemProperties {
 
     private void fixupName() {
         Component component = valuedComponent(DataComponentTypes.CUSTOM_NAME);
-        if(component == null) valuedComponent(DataComponentTypes.CUSTOM_NAME, Component.translatable(String.format("item.%s.%s", key.namespace(), key.value())).fallback(key.value()));
-        else valuedComponent(DataComponentTypes.CUSTOM_NAME, component.decoration(TextDecoration.ITALIC, false));
+        if(component == null) dataComponents.put(DataComponentTypes.CUSTOM_NAME, Component.translatable(String.format("item.%s.%s", key.namespace(), key.value())).fallback(key.value()));
+        else dataComponents.put(DataComponentTypes.CUSTOM_NAME, component.decoration(TextDecoration.ITALIC, false));
     }
 
     public Key key() {
