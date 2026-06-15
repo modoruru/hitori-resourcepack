@@ -4,11 +4,11 @@ import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.hitori.api.logging.LoggerFactory;
 import su.hitori.api.util.UnsafeUtil;
 import su.hitori.pack.type.ItemModel;
 
@@ -16,12 +16,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class ItemProperties {
-
-    private static final Logger LOGGER = LoggerFactory.instance().create();
 
     private final Key key;
 
@@ -41,9 +38,10 @@ public final class ItemProperties {
         this.toUnset = new HashSet<>();
     }
 
-    private void setNameById() {
+    private void fixupName() {
         Component component = valuedComponent(DataComponentTypes.CUSTOM_NAME);
         if(component == null) valuedComponent(DataComponentTypes.CUSTOM_NAME, Component.translatable(String.format("item.%s.%s", key.namespace(), key.value())).fallback(key.value()));
+        else valuedComponent(DataComponentTypes.CUSTOM_NAME, component.decoration(TextDecoration.ITALIC, false));
     }
 
     public Key key() {
@@ -86,7 +84,7 @@ public final class ItemProperties {
         else dataComponents.put(valuedComponentType, value);
 
         if(valuedComponentType.key().equals(DataComponentTypes.CUSTOM_NAME.key()))
-            setNameById();
+            fixupName();
 
         return this;
     }
