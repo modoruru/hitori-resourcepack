@@ -7,6 +7,7 @@ import su.hitori.api.registry.RegistryKey;
 import su.hitori.api.util.FileUtil;
 import su.hitori.api.util.IOUtil;
 import su.hitori.api.util.JSONUtil;
+import su.hitori.api.util.LoggerUtil;
 import su.hitori.pack.PackModule;
 import su.hitori.pack.generation.ErrorStack;
 import su.hitori.pack.generation.GenerationContext;
@@ -41,8 +42,8 @@ public final class GlyphConveyor extends AbstractConveyorWithRegistry<GlyphSnaps
         try (InputStream is = packModule.getResourceAsStream("textures/null.png")) {
             texture = IOUtil.readInputStream(is);
         }
-        catch (Throwable e) {
-            e.printStackTrace();
+        catch (Throwable exception) {
+            GeneratorImpl.LOGGER.warning(LoggerUtil.exceptionToString(exception));
             return;
         }
 
@@ -91,8 +92,8 @@ public final class GlyphConveyor extends AbstractConveyorWithRegistry<GlyphSnaps
             try {
                 glyphSnapshots.addAll(supplier.supply());
             }
-            catch (Throwable ex) {
-                ex.printStackTrace();
+            catch (Throwable exception) {
+                GeneratorImpl.LOGGER.warning(LoggerUtil.exceptionToString(exception));
             }
         });
 
@@ -134,8 +135,8 @@ public final class GlyphConveyor extends AbstractConveyorWithRegistry<GlyphSnaps
                     fos.write(texture);
                     fos.flush();
                 }
-                catch (IOException e) {
-                    e.printStackTrace();
+                catch (IOException exception) {
+                    GeneratorImpl.LOGGER.warning(LoggerUtil.exceptionToString(exception));
                     continue;
                 }
             }

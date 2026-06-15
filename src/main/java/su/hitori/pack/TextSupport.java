@@ -6,14 +6,19 @@ import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import su.hitori.api.logging.LoggerFactory;
 import su.hitori.api.registry.Registry;
+import su.hitori.api.util.LoggerUtil;
 import su.hitori.api.util.Text;
 import su.hitori.pack.impl.GlyphConveyor;
 import su.hitori.pack.type.glyph.Glyph;
 
 import java.util.UUID;
+import java.util.logging.Logger;
 
 final class TextSupport {
+
+    private static final Logger LOGGER = LoggerFactory.instance().create();
 
     private final Registry<@NotNull Glyph> glyphRegistry;
 
@@ -45,8 +50,8 @@ final class TextSupport {
                                         .map(glyph -> Tag.selfClosingInserting(Component.text(glyph.getSymbol())))
                                         .orElse(null);
                             }
-                            catch (Exception e) {
-                                e.printStackTrace();
+                            catch (Exception exception) {
+                                LOGGER.warning(LoggerUtil.exceptionToString(exception));
                                 return null;
                             }
                         })

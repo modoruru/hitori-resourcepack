@@ -59,7 +59,7 @@ public abstract class AbstractConveyor<E extends Keyed> implements GenerationCon
             for (E keyed : supplied) {
                 Key key = keyed.key();
                 if(this.snapshots.containsKey(key)) {
-                    new RuntimeException("supplier " + supplier.key().asString() + " supplied item with existing id").printStackTrace();
+                    GeneratorImpl.LOGGER.warning("supplier " + supplier.key().asString() + " supplied item with existing id");
                     return;
                 }
 

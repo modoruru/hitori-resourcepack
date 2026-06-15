@@ -5,6 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import su.hitori.api.util.FileUtil;
 import su.hitori.api.util.JSONUtil;
+import su.hitori.api.util.LoggerUtil;
 import su.hitori.pack.generation.GenerationContext;
 import su.hitori.pack.type.Sound;
 
@@ -55,9 +56,8 @@ public final class SoundConveyor extends AbstractConveyor<Sound> {
                 fos.write(sound.opusData());
                 fos.flush();
             }
-            catch (Exception e) {
-                e.printStackTrace();
-                continue;
+            catch (Exception exception) {
+                GeneratorImpl.LOGGER.warning(LoggerUtil.exceptionToString(exception));
             }
         }
 

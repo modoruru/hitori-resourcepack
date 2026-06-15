@@ -6,6 +6,8 @@ import com.sun.net.httpserver.HttpServer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import su.hitori.api.Pair;
+import su.hitori.api.logging.LoggerFactory;
+import su.hitori.api.util.LoggerUtil;
 import su.hitori.pack.PackConfiguration;
 import su.hitori.pack.generation.Generator;
 
@@ -16,8 +18,11 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public final class PackServer {
+
+    private final Logger LOGGER = LoggerFactory.instance().create();
 
     private final Generator generator;
 
@@ -39,8 +44,9 @@ public final class PackServer {
             server.createContext("/pack", new ResourcePackHandler(generator));
             server.setExecutor(null);
             server.start();
-        } catch (IOException e) {
-            e.printStackTrace();
+        }
+        catch (IOException exception) {
+            LOGGER.warning(LoggerUtil.exceptionToString(exception));
         }
     }
 

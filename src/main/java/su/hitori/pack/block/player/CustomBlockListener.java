@@ -29,7 +29,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
-import org.jetbrains.annotations.NotNull;
 import su.hitori.api.nms.NMSUtil;
 import su.hitori.api.registry.Registry;
 import su.hitori.api.util.Task;
@@ -50,13 +49,13 @@ import java.util.UUID;
 
 public final class CustomBlockListener implements Listener {
 
-    private final Registry<@NotNull CustomBlock> blockRegistry;
-    private final Registry<@NotNull CustomItem> itemRegistry;
+    private final Registry<CustomBlock> blockRegistry;
+    private final Registry<CustomItem> itemRegistry;
     private final LevelService levelService;
 
     private final Map<UUID, Long> lastActionTime = new HashMap<>();
 
-    public CustomBlockListener(Registry<@NotNull CustomBlock> blockRegistry, Registry<@NotNull CustomItem> itemRegistry, LevelService levelService) {
+    public CustomBlockListener(Registry<CustomBlock> blockRegistry, Registry<CustomItem> itemRegistry, LevelService levelService) {
         this.blockRegistry = blockRegistry;
         this.itemRegistry = itemRegistry;
         this.levelService = levelService;

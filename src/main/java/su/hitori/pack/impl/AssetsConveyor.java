@@ -2,10 +2,14 @@ package su.hitori.pack.impl;
 
 import net.kyori.adventure.key.Key;
 import su.hitori.api.util.Either;
+import su.hitori.api.util.LoggerUtil;
 import su.hitori.pack.generation.GenerationContext;
 import su.hitori.pack.type.AssetsSource;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,10 +124,7 @@ public final class AssetsConveyor extends AbstractConveyor<AssetsSource> {
             }
         }
         catch (Throwable exception) {
-            StringWriter writer = new StringWriter();
-            PrintWriter pw = new PrintWriter(writer);
-            exception.printStackTrace(pw);
-            GeneratorImpl.LOGGER.severe(writer.toString());
+            GeneratorImpl.LOGGER.severe(LoggerUtil.exceptionToString(exception));
         }
     }
 

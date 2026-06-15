@@ -204,8 +204,8 @@ public final class GeneratorImpl implements Generator {
                         Files.copy(path, zos);
                         zos.closeEntry();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException exception) {
+                    GeneratorImpl.LOGGER.warning(LoggerUtil.exceptionToString(exception));
                 }
             });
 
