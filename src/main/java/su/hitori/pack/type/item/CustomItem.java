@@ -61,6 +61,8 @@ public record CustomItem(ItemProperties properties) implements Keyed {
         if(properties.itemModel() != null)
             stack.setData(DataComponentTypes.ITEM_MODEL, properties.itemModel().resolve());
 
+        stack.editMeta(meta -> meta.getPersistentDataContainer().set(ITEM_ID, PersistentDataType.STRING, key().asString()));
+
         return stack;
     }
 
