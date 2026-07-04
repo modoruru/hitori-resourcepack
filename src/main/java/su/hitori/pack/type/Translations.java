@@ -14,7 +14,7 @@ import java.util.Map;
 public record Translations(Key key, Map<Locale, Map<String, String>> locales) implements Keyed {
 
     public static Translations readFolder(Key key, File languagesFolder) {
-        if(!languagesFolder.exists() || languagesFolder.isDirectory()) return new Translations(key, Map.of());
+        if(!languagesFolder.exists() || !languagesFolder.isDirectory()) return new Translations(key, Map.of());
 
         File[] files = languagesFolder.listFiles();
         assert files != null;
