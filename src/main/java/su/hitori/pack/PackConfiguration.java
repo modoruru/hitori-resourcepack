@@ -13,6 +13,8 @@ public final class PackConfiguration extends Configuration {
         I = this;
     }
 
+    public boolean sendPack = true;
+    public boolean requirePack = true;
     public String publicIp = "localhost:25566";
     public int port = 25566;
     public boolean coreProtectSupport = true;

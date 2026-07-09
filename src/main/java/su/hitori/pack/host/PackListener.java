@@ -40,7 +40,10 @@ public final class PackListener implements Listener {
 
         var cfg = PackConfiguration.I;
         switch (event.getStatus()) {
-            case DECLINED, DISCARDED -> player.kick(Text.create(cfg.allowResourcepackToPlay));
+            case DECLINED, DISCARDED -> {
+                if(PackConfiguration.I.requirePack)
+                    player.kick(Text.create(cfg.allowResourcepackToPlay));
+            }
             case FAILED_DOWNLOAD, INVALID_URL, FAILED_RELOAD  -> player.kick(Text.create(cfg.errorInstallingResourcepack));
             default -> {}
         }

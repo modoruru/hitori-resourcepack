@@ -12,6 +12,10 @@ import java.util.Optional;
 
 public interface Generator {
 
+    /**
+     * Requests generator to start generation process.
+     * @return whether request was satisfied or not
+     */
     boolean generate();
 
     /**
@@ -43,7 +47,7 @@ public interface Generator {
     <E extends Keyed> void addConveyorLast(ModuleDescriptor moduleDescriptor, GenerationConveyor<E> conveyor, Class<E> objectType);
 
     /**
-     * returns file and hash if generated, or empty if pack is not generated yet or generating right now
+     * returns file and hash if generated, or empty if pack is not generated yet or being generated right now
      */
     Optional<Pair<File, String>> getResult();
 

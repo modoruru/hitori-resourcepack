@@ -37,7 +37,7 @@ public final class PackServer {
     }
 
     public void start() {
-        if(server != null) return;
+        if(server != null || !PackConfiguration.I.sendPack) return;
 
         try {
             server = HttpServer.create(new InetSocketAddress(PackConfiguration.I.port), 0);
@@ -58,7 +58,7 @@ public final class PackServer {
     }
 
     public void sendPack(Player player) {
-        if(generator.isGenerating())
+        if(server == null || generator.isGenerating())
             return;
 
         Optional<Pair<File, String>> pack = generator.getResult();

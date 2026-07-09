@@ -63,8 +63,8 @@ public final class GeneratorImpl implements Generator {
     }
 
     private void generateInternal() {
-        generateRequested = false;
         generating.set(true);
+        generateRequested = false;
 
         long start = System.currentTimeMillis();
         LOGGER.info("Starting pack generation");
@@ -134,8 +134,9 @@ public final class GeneratorImpl implements Generator {
         else pack = new JSONObject().put("description", "hitori framework");
 
         pack.put("pack_format", switch (ServerBuildInfo.buildInfo().minecraftVersionId()) {
-            case "1.21.10" -> 69;
-            default -> 75.0;
+            case "26.1" -> 84.0;
+            case "26.2" -> 88.0;
+            default -> 75.0; // 1.21.11
         });
 
         object.put("pack", pack);

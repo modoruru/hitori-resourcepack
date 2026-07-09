@@ -91,11 +91,13 @@ public final class PackModule extends Module {
                 new LayCommand(poseService),
                 new CrawlCommand(poseService)
         );
-        generator.generate();
+
         packServer.start();
         combinedProtectionService.load();
         levelService.load();
         textSupport.load();
+
+        context.enableHooksFuture().thenAccept(_ -> generator.generate());
     }
 
     private void createSkinsRestorerSupport() {
