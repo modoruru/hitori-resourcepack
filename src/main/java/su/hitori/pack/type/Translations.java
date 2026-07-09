@@ -55,11 +55,11 @@ public record Translations(Key key, Map<Locale, Map<String, String>> locales) im
 
         af_za, ar_sa, ast_es, az_az,
         ba_ru, bar, be_by, be_latn, bg_bg, br_fr, brb, bs_ba,
-        ca_es, cs_cz, cy_gb,
+        ca_es, cv_cu, cs_cz, cy_gb,
         da_dk, de_at, de_ch, de_de,
         el_gr, en_au, en_ca, en_gb, en_nz, en_pt, en_ud, en_us, enp, enws, eo_uy, es_ar, es_cl, es_ec, es_es, es_mx, es_uy, es_ve, esan, et_ee, eu_es,
-        fa_ir, fi_fi, fil_ph, fr_ca, fr_fr, fra_de, fur_it, fy_nl,
-        ga_ie, gd_gb, gl_es,
+        fa_ir, fi_fi, fil_ph, fr_ca, fr_ch, fr_fr, fra_de, fur_it, fy_nl,
+        ga_ie, gd_gb, gl_es, go_fr, got_de,
         hal_ua, haw_us, he_il, hi_in, hn_no, hr_hr, hu_hu, hy_am,
         id_id, ig_ng, io_en, is_is, isv, it_it,
         ja_jp, jbo_en,
@@ -73,8 +73,8 @@ public record Translations(Key key, Map<Locale, Map<String, String>> locales) im
         ro_ro, rpr, ru_ru, ry_ua,
         sah_sah, se_no, sk_sk, sl_si, so_so, sq_al, sr_cs, sr_sp, sv_se, sxu, szl,
         ta_in, tl_ph, tlh_aa, tok, tr_tr, tt_ru, tzo_mx,
-        uk_ua,
-        val_es, vec_it, vi_vn, vp_vl,
+        uk_ua, uz_uz,
+        val_es, vec_it, vro, vi_vn, vp_vl,
         yi_de, yo_ng, zh_cn, zh_hk, zlm_arab
 
     }
