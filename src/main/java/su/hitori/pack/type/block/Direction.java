@@ -1,6 +1,6 @@
 package su.hitori.pack.type.block;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 

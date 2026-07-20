@@ -7,8 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Registry;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.util.UnsafeUtil;
 import su.hitori.pack.type.ItemModel;
 
@@ -30,7 +29,7 @@ public final class ItemProperties {
     private @Nullable ItemModel itemModel;
     private @Nullable Key customBlock;
 
-    public ItemProperties(@NotNull Key key) {
+    public ItemProperties(Key key) {
         this.key = key;
 
         this.dataComponents = new HashMap<>();
@@ -48,7 +47,7 @@ public final class ItemProperties {
         return key;
     }
 
-    public ItemProperties type(@NotNull Material type) {
+    public ItemProperties type(Material type) {
         this.type = type;
         return this;
     }
@@ -74,7 +73,7 @@ public final class ItemProperties {
         return Set.copyOf(toUnset);
     }
 
-    public <T> ItemProperties valuedComponent(DataComponentType.Valued<T> valuedComponentType, T value) {
+    public <T> ItemProperties valuedComponent(DataComponentType.Valued<T> valuedComponentType, @Nullable T value) {
         verifyDataComponentType(valuedComponentType);
 
         if(valuedComponentType.key().equals(DataComponentTypes.ITEM_MODEL.key()))

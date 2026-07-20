@@ -6,8 +6,9 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.logging.LoggerFactory;
+import su.hitori.api.util.UnsafeUtil;
 import su.hitori.pack.pose.seat.SeatPoseEntity;
 
 import java.lang.reflect.Field;
@@ -44,7 +45,7 @@ final class PoseUtil {
         );
     }
 
-    public static @Nullable org.bukkit.entity.Entity createSeatEntity(Location location, org.bukkit.entity.Entity rider, boolean canRotate) {
+    public static org.bukkit.entity. @Nullable Entity createSeatEntity(Location location, org.bukkit.entity. @Nullable Entity rider, boolean canRotate) {
         if(rider == null || !rider.isValid()) return null;
 
         Entity nmsRider = ((CraftEntity) rider).getHandle();
@@ -64,7 +65,7 @@ final class PoseUtil {
     private static boolean spawnEntity(Entity entity) {
         if(entityManagerField != null) {
             try {
-                PersistentEntitySectionManager<Entity> entityLookup = (PersistentEntitySectionManager<Entity>) entityManagerField.get(entity.level().getWorld().getHandle());
+                PersistentEntitySectionManager<Entity> entityLookup = UnsafeUtil.cast(entityManagerField.get(entity.level().getWorld().getHandle()));
                 return entityLookup.addNewEntity(entity);
             } catch(Throwable e) {
                 LOGGER.log(Level.SEVERE, "Could not spawn entity", e);

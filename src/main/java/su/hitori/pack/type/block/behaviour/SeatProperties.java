@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.Hitori;
 import su.hitori.pack.PackModule;
 import su.hitori.pack.block.BlockState;
@@ -25,7 +26,7 @@ public record SeatProperties(ItemModel model, float yShift) implements Behaviour
     }
 
     @Override
-    public boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, ItemDisplay displayEntity, Player player, EquipmentSlot hand, ItemStack handItem) {
+    public boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity, Player player, EquipmentSlot hand, @Nullable ItemStack handItem) {
         if(clickedState.orientation() != Orientation.FLOOR) return false;
 
         PoseService poseService = Hitori.instance().moduleRepository().<PackModule>getUnsafe(Key.key("hitori", "resourcepack"))
@@ -60,7 +61,7 @@ public record SeatProperties(ItemModel model, float yShift) implements Behaviour
     }
 
     @Override
-    public void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, ItemDisplay displayEntity) {
+    public void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity) {
 
     }
 

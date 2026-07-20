@@ -1,6 +1,7 @@
 package su.hitori.pack.block.level;
 
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.block.BlockPos;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.block.PosUtil;
@@ -61,13 +62,14 @@ final class RegionFileHandle {
     private final File file;
 
     private boolean read;
-    private Map<Long, Map<Long, BlockState>> rawChunkData;
+    private @Nullable Map<Long, Map<Long, BlockState>> rawChunkData;
 
     RegionFileHandle(File file) {
         this.file = file;
     }
 
     void putChunkData(int localChunkX, int localChunkZ, Chunk chunk) {
+        assert rawChunkData != null;
         rawChunkData.put(
                 PosUtil.getChunkKey(localChunkX, localChunkZ),
                 new HashMap<>(chunk.MAP)
@@ -78,6 +80,7 @@ final class RegionFileHandle {
         if(!read) read();
         long key = PosUtil.getChunkKey(localChunkX, localChunkZ);
 
+        assert rawChunkData != null;
         Map<Long, BlockState> raw = rawChunkData.remove(key);
         if(raw == null) return new Chunk(key);
         return new Chunk(key, new HashMap<>(raw));
@@ -119,6 +122,7 @@ final class RegionFileHandle {
 
     void save() {
         if(!read) return;
+        assert rawChunkData != null;
         short chunks = Integer.valueOf(rawChunkData.size()).shortValue(); // better cast
         if(chunks == 0) {
             boolean _ = file.delete();

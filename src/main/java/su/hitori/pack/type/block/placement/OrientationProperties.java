@@ -1,13 +1,14 @@
 package su.hitori.pack.type.block.placement;
 
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.type.block.Orientation;
 
 public final class OrientationProperties {
 
     private final boolean unlocked;
-    private final Orientation def;
+    private final @Nullable Orientation def;
 
-    private OrientationProperties(boolean unlocked, Orientation def) {
+    private OrientationProperties(boolean unlocked, @Nullable Orientation def) {
         this.unlocked = unlocked;
         this.def = def;
     }
@@ -16,7 +17,7 @@ public final class OrientationProperties {
         return unlocked;
     }
 
-    public Orientation def() {
+    public @Nullable Orientation def() {
         return def;
     }
 

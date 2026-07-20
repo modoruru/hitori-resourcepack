@@ -1,7 +1,7 @@
 package su.hitori.pack.type;
 
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.util.IOUtil;
 import su.hitori.api.util.JSONUtil;
 

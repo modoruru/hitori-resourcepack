@@ -1,5 +1,6 @@
 package su.hitori.pack.block.level;
 
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.block.PosUtil;
 
@@ -24,7 +25,7 @@ final class Chunk {
         return MAP.getOrDefault(PosUtil.getBlockKey(x, y + 64, z), BlockState.EMPTY);
     }
 
-    void setState(int x, int y, int z, BlockState blockState) {
+    void setState(int x, int y, int z, @Nullable BlockState blockState) {
         long key = PosUtil.getBlockKey(x, y + 64, z);
         if(blockState == null) MAP.remove(key);
         else MAP.put(key, blockState);

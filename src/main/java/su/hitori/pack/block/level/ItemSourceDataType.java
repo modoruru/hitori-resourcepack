@@ -3,7 +3,6 @@ package su.hitori.pack.block.level;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 
 final class ItemSourceDataType implements PersistentDataType<byte[], ItemStack> {
 
@@ -22,12 +21,12 @@ final class ItemSourceDataType implements PersistentDataType<byte[], ItemStack> 
     }
 
     @Override
-    public byte @NotNull [] toPrimitive(ItemStack complex, @NotNull PersistentDataAdapterContext context) {
+    public byte[] toPrimitive(ItemStack complex, PersistentDataAdapterContext context) {
         return complex.serializeAsBytes();
     }
 
     @Override
-    public ItemStack fromPrimitive(byte @NotNull [] primitive, @NotNull PersistentDataAdapterContext context) {
+    public ItemStack fromPrimitive(byte[] primitive, PersistentDataAdapterContext context) {
         return ItemStack.deserializeBytes(primitive);
     }
 

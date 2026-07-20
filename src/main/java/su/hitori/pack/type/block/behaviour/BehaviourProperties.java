@@ -5,6 +5,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.type.block.CustomBlock;
 
@@ -15,9 +16,9 @@ public sealed interface BehaviourProperties permits DefaultBehaviour, LightEmitt
 
     BehaviourType type();
 
-    boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, ItemDisplay displayEntity, Player player, EquipmentSlot hand, ItemStack handItem);
+    boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity, Player player, EquipmentSlot hand, @Nullable ItemStack handItem);
 
-    void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, ItemDisplay displayEntity);
+    void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity);
 
     default DefaultBehaviour asDefault() {
         if(type() == BehaviourType.DEFAULT) return (DefaultBehaviour) this;

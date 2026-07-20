@@ -1,6 +1,4 @@
-@MethodsReturnNonnullByDefault
-@FieldsAreNonnullByDefault
+@NullMarked
 package su.hitori.pack.type.glyph;
 
-import com.mojang.logging.annotations.FieldsAreNonnullByDefault;
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

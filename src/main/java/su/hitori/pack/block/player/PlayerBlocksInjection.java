@@ -29,7 +29,7 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.util.Task;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.block.level.Level;

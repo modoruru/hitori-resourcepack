@@ -2,7 +2,7 @@ package su.hitori.pack.block;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.type.block.Direction;
 import su.hitori.pack.type.block.Orientation;
 

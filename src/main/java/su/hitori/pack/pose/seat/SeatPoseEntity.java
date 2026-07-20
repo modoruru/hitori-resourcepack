@@ -9,8 +9,7 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.CraftWorld;
-import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.pose.PoseService;
 
 public final class SeatPoseEntity extends ArmorStand {
@@ -56,11 +55,11 @@ public final class SeatPoseEntity extends ArmorStand {
     }
 
     @Override
-    public void move(@NonNull MoverType type, @NonNull Vec3 movement) {
+    public void move(MoverType type, Vec3 movement) {
     }
 
     @Override
-    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource damageSource, float amount) {
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
         return false;
     }
 

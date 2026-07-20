@@ -11,8 +11,7 @@ import org.bukkit.block.data.type.Stairs;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.Hitori;
 import su.hitori.api.logging.LoggerFactory;
 import su.hitori.pack.pose.crawl.CrawlPose;
@@ -161,11 +160,10 @@ public final class PoseService {
     }
 
     public void moveSeat(SeatPose seatPose, BlockFace blockDirection) {
-        if(seatPose.getRider() instanceof Player player) {
-            PlayerMoveEvent playerMoveEvent = new PlayerMoveEvent(player, player.getLocation(), player.getLocation().add(blockDirection.getModX(), blockDirection.getModY(), blockDirection.getModZ()));
-            Bukkit.getPluginManager().callEvent(playerMoveEvent);
-            if(playerMoveEvent.isCancelled()) return;
-        }
+        Player player = seatPose.getRider();
+        PlayerMoveEvent playerMoveEvent = new PlayerMoveEvent(player, player.getLocation(), player.getLocation().add(blockDirection.getModX(), blockDirection.getModY(), blockDirection.getModZ()));
+        Bukkit.getPluginManager().callEvent(playerMoveEvent);
+        if(playerMoveEvent.isCancelled()) return;
 
         seatByBlock.remove(seatPose.getBlock());
 
@@ -176,7 +174,7 @@ public final class PoseService {
         seatByBlock.put(seatPose.getBlock(), seatPose);
     }
 
-    public boolean removeCrawlPose(CrawlPose crawlPose) {
+    public boolean removeCrawlPose(@Nullable CrawlPose crawlPose) {
         if(crawlPose == null) return false;
 
         callEvent(crawlPose.player(), PoseType.CRAWL, false);
@@ -227,7 +225,7 @@ public final class PoseService {
         return true;
     }
 
-    private void safeDismount(@NotNull SeatPose seatPose) {
+    private void safeDismount(SeatPose seatPose) {
         Entity rider = seatPose.getRider();
 
         try {

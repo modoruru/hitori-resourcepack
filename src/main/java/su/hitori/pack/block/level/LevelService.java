@@ -12,11 +12,10 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.logging.LoggerFactory;
 import su.hitori.api.registry.Registry;
 import su.hitori.api.util.Task;
@@ -68,8 +67,8 @@ public final class LevelService {
     private final PackModule packModule;
     private final CombinedProtectionService combinedProtectionService;
     private final ExecutorService executorService;
-    private final Registry<@NotNull CustomBlock> blockRegistry;
-    private final Registry<@NotNull CustomItem> itemRegistry;
+    private final Registry<CustomBlock> blockRegistry;
+    private final Registry<CustomItem> itemRegistry;
     private final Map<Key, Level> levels;
 
     private final AtomicBoolean performingCheck;
@@ -77,7 +76,7 @@ public final class LevelService {
     private @Nullable Task validateTask;
     private boolean loaded;
 
-    public LevelService(PackModule packModule, CombinedProtectionService combinedProtectionService, Registry<@NotNull CustomBlock> blockRegistry, Registry<@NotNull CustomItem> itemRegistry) {
+    public LevelService(PackModule packModule, CombinedProtectionService combinedProtectionService, Registry<CustomBlock> blockRegistry, Registry<CustomItem> itemRegistry) {
         this.packModule = packModule;
         this.combinedProtectionService = combinedProtectionService;
         this.executorService = packModule.executorService();
@@ -111,7 +110,11 @@ public final class LevelService {
 
                 BlockProperties blockProperties = customBlock.blockProperties();
                 PlacementProperties placement = blockProperties.placementProperties();
+                assert placement != null;
+
                 BehaviourProperties behaviourProperties = blockProperties.behaviourProperties();
+                assert behaviourProperties != null;
+
                 Material expectedBlockType;
                 if(placement.type() == PlacementType.SOLID) expectedBlockType = Material.BARRIER;
                 else {
@@ -261,7 +264,7 @@ public final class LevelService {
      * handles player rbm on block
      * @return was interaction handled or there's no suitable action to do
      */
-    public boolean handlePlayerInteraction(Block block, Player player, EquipmentSlot hand, ItemStack handItem) {
+    public boolean handlePlayerInteraction(Block block, Player player, EquipmentSlot hand, @Nullable ItemStack handItem) {
         World world = block.getWorld();
         Level level = getLevel(world);
         if(level == null) return false;
@@ -286,6 +289,7 @@ public final class LevelService {
                 .orElse(null);
 
         BehaviourProperties behaviourProperties = customBlock.blockProperties().behaviourProperties();
+        assert behaviourProperties != null;
         BlockState blockState = level.getState(parent.getX(), parent.getY(), parent.getZ());
         boolean consumed = behaviourProperties.onPlayerInteract(
                 customBlock,
@@ -302,8 +306,9 @@ public final class LevelService {
         return consumed;
     }
 
-    public boolean placeCustomBlock(CustomBlock customBlock, Direction inputDirection, Orientation inputOrientation, Block center, boolean ignoreEntities, @Nullable ItemStack placedFrom, Player whoPlaced) {
+    public boolean placeCustomBlock(CustomBlock customBlock, Direction inputDirection, Orientation inputOrientation, Block center, boolean ignoreEntities, @Nullable ItemStack placedFrom, @Nullable Player whoPlaced) {
         PlacementProperties placementProperties = customBlock.blockProperties().placementProperties();
+        assert placementProperties != null;
 
         if(whoPlaced != null && !whoPlaced.getGameMode().isInvulnerable() && !placementProperties.survivalFriendly())
             return false;
@@ -321,7 +326,7 @@ public final class LevelService {
         Level level = getLevel(world);
         assert level != null;
 
-        if(!placementProperties.canBePlaced(direction, orientation, center, center, level, ignoreEntities) || !combinedProtectionService.isAbleToBreak(center, whoPlaced)) return false;
+        if(!placementProperties.canBePlaced(direction, orientation, center, center, level, ignoreEntities) || (whoPlaced != null && !combinedProtectionService.isAbleToBreak(center, whoPlaced))) return false;
 
         PlacementType placementType = placementProperties.type();
 
@@ -351,7 +356,8 @@ public final class LevelService {
         for (Block block : blocks) {
             if(placementType == PlacementType.SOLID) block.setType(Material.BARRIER);
 
-            coreProtect.ifPresent(support -> support.logCustomBlockPlacement(whoPlaced, block));
+            if(whoPlaced != null)
+                coreProtect.ifPresent(support -> support.logCustomBlockPlacement(whoPlaced, block));
 
             boolean isCenter = BlockPos.equals(center, block);
             level.setState(
@@ -382,6 +388,7 @@ public final class LevelService {
         }
 
         BehaviourProperties behaviourProperties = customBlock.blockProperties().behaviourProperties();
+        assert behaviourProperties != null;
 
         ItemModel itemModel;
         switch (behaviourProperties.type()) {
@@ -450,7 +457,7 @@ public final class LevelService {
         return removeCustomBlock(child, drop, player, false);
     }
 
-    private boolean removeCustomBlock(Block child, boolean drop, Player player, boolean forceRemoved) {
+    private boolean removeCustomBlock(Block child, boolean drop, @Nullable Player player, boolean forceRemoved) {
         World world = child.getWorld();
         Level level = getLevel(world);
         if(level == null) return false;
@@ -485,6 +492,7 @@ public final class LevelService {
         BlockProperties blockProperties = customBlock.blockProperties();
         PlacementProperties placement = blockProperties.placementProperties();
         BehaviourProperties behaviour = blockProperties.behaviourProperties();
+        assert placement != null && behaviour != null;
 
         PoseService poseService = packModule.poseService();
         Optional<CoreProtectSupport> coreProtect = packModule.coreProtectSupport();

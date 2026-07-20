@@ -1,8 +1,7 @@
 package su.hitori.pack.type.block;
 
 import net.kyori.adventure.key.Key;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.type.block.behaviour.BehaviourProperties;
 import su.hitori.pack.type.block.placement.OrientationProperties;
 import su.hitori.pack.type.block.placement.PlacementProperties;
@@ -16,7 +15,7 @@ public final class BlockProperties {
     private @Nullable BehaviourProperties behaviourProperties;
     private @Nullable Key itemToDrop;
 
-    public BlockProperties(@NotNull Key key) {
+    public BlockProperties(Key key) {
         this.key = key;
     }
 

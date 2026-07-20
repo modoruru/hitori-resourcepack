@@ -4,6 +4,7 @@ import net.kyori.adventure.key.Key;
 import org.bukkit.NamespacedKey;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.util.FileUtil;
 import su.hitori.pack.generation.GenerationContext;
 import su.hitori.pack.type.ItemModel;
@@ -117,7 +118,7 @@ public final class ItemModelConveyor extends AbstractConveyor<ItemModel> {
         collectingOrGenerating = false;
     }
 
-    private static void writeItemModel(File file, NamespacedKey model, Tint tint, boolean oversizedInGui) {
+    private static void writeItemModel(File file, NamespacedKey model, @Nullable Tint tint, boolean oversizedInGui) {
         JSONObject modelBody = new JSONObject()
                 .put("type", "minecraft:model")
                 .put("model", model.asString());

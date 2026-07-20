@@ -7,7 +7,7 @@ import net.kyori.adventure.key.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.registry.Registry;
 import su.hitori.api.util.KeyUtil;
 import su.hitori.api.util.UnsafeUtil;
@@ -19,13 +19,13 @@ public record CustomItem(ItemProperties properties) implements Keyed {
 
     public static final NamespacedKey ITEM_ID = KeyUtil.create("item");
 
-    public static Optional<Key> getId(ItemStack stack) {
+    public static Optional<Key> getId(@Nullable ItemStack stack) {
         return Optional.ofNullable(stack)
                 .map(itemStack -> itemStack.getPersistentDataContainer().get(ITEM_ID, PersistentDataType.STRING))
                 .map(Key::key);
     }
 
-    public static Optional<CustomItem> getCustomItem(ItemStack stack, Registry<@NotNull CustomItem> itemRegistry) {
+    public static Optional<CustomItem> getCustomItem(ItemStack stack, Registry<CustomItem> itemRegistry) {
         return getId(stack).map(itemRegistry::get);
     }
 

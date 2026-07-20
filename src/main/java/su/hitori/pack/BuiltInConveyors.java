@@ -2,7 +2,6 @@ package su.hitori.pack;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.jetbrains.annotations.NotNull;
 import su.hitori.api.module.ModuleDescriptor;
 import su.hitori.api.registry.Registry;
 import su.hitori.api.registry.RegistryAccess;
@@ -44,7 +43,7 @@ public final class BuiltInConveyors implements RegistryAccess {
     }
 
     @Override
-    public <E extends Keyed> Optional<Registry<@NotNull E>> access(RegistryKey<E> key) throws IllegalAccessError {
+    public <E extends Keyed> Optional<Registry<E>> access(RegistryKey<E> key) throws IllegalAccessError {
         AbstractConveyorWithRegistry<?, ?> conveyor;
         if(key == CUSTOM_ITEM) conveyor = customItemConveyor;
         else if (key == GLYPH) conveyor = glyphConveyor;

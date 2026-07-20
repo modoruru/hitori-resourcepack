@@ -5,6 +5,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.block.event.CustomBlockClickEvent;
 import su.hitori.pack.type.ItemModel;
@@ -18,14 +19,14 @@ public record DefaultBehaviour(ItemModel model) implements BehaviourProperties {
     }
 
     @Override
-    public boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, ItemDisplay displayEntity, Player player, EquipmentSlot hand, ItemStack handItem) {
+    public boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity, Player player, EquipmentSlot hand, @Nullable ItemStack handItem) {
         CustomBlockClickEvent event = new CustomBlockClickEvent(player, customBlock, clickedBlock);
         event.callEvent();
         return event.consumeInput();
     }
 
     @Override
-    public void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, ItemDisplay displayEntity) {
+    public void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity) {
     }
 
 }

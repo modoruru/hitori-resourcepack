@@ -1,8 +1,7 @@
 package su.hitori.pack;
 
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.module.Module;
 import su.hitori.api.module.enable.EnableContext;
 import su.hitori.api.registry.Registry;
@@ -57,8 +56,8 @@ public final class PackModule extends Module {
         builtInConveyors = new BuiltInConveyors(this);
         poseService = new PoseService();
 
-        Registry<@NotNull CustomBlock> customBlockRegistry = builtInConveyors.access(BuiltInConveyors.CUSTOM_BLOCK).get();
-        Registry<@NotNull CustomItem> customItemRegistry = builtInConveyors.access(BuiltInConveyors.CUSTOM_ITEM).get();
+        Registry<CustomBlock> customBlockRegistry = builtInConveyors.access(BuiltInConveyors.CUSTOM_BLOCK).get();
+        Registry<CustomItem> customItemRegistry = builtInConveyors.access(BuiltInConveyors.CUSTOM_ITEM).get();
 
         CombinedProtectionService combinedProtectionService = new CombinedProtectionService();
         levelService = new LevelService(this, combinedProtectionService, customBlockRegistry, customItemRegistry);

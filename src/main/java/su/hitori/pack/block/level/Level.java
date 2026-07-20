@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.block.PosUtil;
 
@@ -53,7 +53,7 @@ public final class Level {
         return getChunk(chunkX, chunkZ).getState(x & 0xF, y, z & 0xF);
     }
 
-    public void setState(int x, int y, int z, BlockState state) {
+    public void setState(int x, int y, int z, @Nullable BlockState state) {
         final int chunkX = x >> 4, chunkZ = z >> 4;
         getChunk(chunkX, chunkZ).setState(x & 0xF, y, z & 0xF, state);
     }

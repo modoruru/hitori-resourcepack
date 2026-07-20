@@ -4,8 +4,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.logging.LoggerFactory;
 import su.hitori.api.registry.Registry;
 import su.hitori.api.util.LoggerUtil;
@@ -20,11 +19,11 @@ final class TextSupport {
 
     private static final Logger LOGGER = LoggerFactory.instance().create();
 
-    private final Registry<@NotNull Glyph> glyphRegistry;
+    private final Registry<Glyph> glyphRegistry;
 
     private @Nullable UUID tagResolverUid;
 
-    TextSupport(Registry<@NotNull Glyph> glyphRegistry) {
+    TextSupport(Registry<Glyph> glyphRegistry) {
         this.glyphRegistry = glyphRegistry;
     }
 

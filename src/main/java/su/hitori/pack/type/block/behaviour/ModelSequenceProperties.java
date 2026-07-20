@@ -5,6 +5,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.block.level.LevelService;
 import su.hitori.pack.exception.MisconfigurationException;
@@ -26,7 +27,7 @@ public record ModelSequenceProperties(List<ItemModel> sequence) implements Behav
     }
 
     @Override
-    public boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, ItemDisplay displayEntity, Player player, EquipmentSlot hand, ItemStack handItem) {
+    public boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity, Player player, EquipmentSlot hand, @Nullable ItemStack handItem) {
         int index = centerState.additionalData + 1;
         if(index >= sequence.size()) index = 0;
         centerState.additionalData = index;
@@ -34,7 +35,9 @@ public record ModelSequenceProperties(List<ItemModel> sequence) implements Behav
     }
 
     @Override
-    public void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, ItemDisplay displayEntity) {
+    public void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity) {
+        if(displayEntity == null) return;
+
         ItemStack stack = displayEntity.getItemStack();
         ItemModel itemModel = sequence.get(centerState.additionalData);
         stack.editMeta(meta -> meta.setItemModel(itemModel.resolve()));

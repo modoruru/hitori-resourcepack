@@ -1,8 +1,8 @@
 package su.hitori.pack.type;
 
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 

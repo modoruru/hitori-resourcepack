@@ -7,6 +7,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.util.Task;
 import su.hitori.pack.block.BlockState;
 import su.hitori.pack.type.ItemModel;
@@ -32,18 +33,21 @@ public record LightEmitterProperties(int lightLevel, ItemModel disabled, ItemMod
     }
 
     @Override
-    public boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, ItemDisplay displayEntity, Player player, EquipmentSlot hand, ItemStack handItem) {
+    public boolean onPlayerInteract(CustomBlock customBlock, Block clickedBlock, BlockState clickedState, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity, Player player, EquipmentSlot hand, @Nullable ItemStack handItem) {
         centerState.additionalData = centerState.additionalData == 1 ? 0 : 1;
         return true;
     }
 
     @Override
-    public void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, ItemDisplay displayEntity) {
+    public void updateStateFromAdditionalData(CustomBlock customBlock, Block center, BlockState centerState, @Nullable ItemDisplay displayEntity) {
+
         boolean enabled = centerState.additionalData == 1;
 
-        ItemStack stack = displayEntity.getItemStack();
-        stack.editMeta(meta -> meta.setItemModel((enabled ? this.enabled : this.disabled).resolve()));
-        displayEntity.setItemStack(stack);
+        if(displayEntity != null) {
+            ItemStack stack = displayEntity.getItemStack();
+            stack.editMeta(meta -> meta.setItemModel((enabled ? this.enabled : this.disabled).resolve()));
+            displayEntity.setItemStack(stack);
+        }
 
         place(customBlock.blockProperties().placementProperties(), centerState.direction(), centerState.orientation(), center, enabled);
     }
