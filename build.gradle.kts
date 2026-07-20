@@ -2,13 +2,14 @@ plugins {
     java
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
     id("maven-publish")
+    id("com.gradleup.shadow") version "9.4.3"
 }
 
 val defaultJavaVersion = "23"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(properties.getOrDefault("java", defaultJavaVersion) as String))
+        languageVersion.set(JavaLanguageVersion.of((property("java") ?: defaultJavaVersion) as String))
     }
 }
 
@@ -41,12 +42,27 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    compileOnly("dev.jorel:commandapi-paper-core:11.0.0")
-    compileOnly("com.github.modoruru:hitori:${properties.getOrDefault("hitori_version", "")}")
 
+    compileOnly("com.github.modoruru:hitori:${property("hitori_version")}")
     compileOnly("net.coreprotect:coreprotect:23.2")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.16-SNAPSHOT")
     compileOnly("net.skinsrestorer:skinsrestorer-api:15.10.0")
+
+    implementation("com.github.justlofe:FastBytes:${property("fastbytes_version")}")
+}
+
+tasks {
+    jar {
+        enabled = false
+    }
+
+    shadowJar {
+        archiveClassifier.set("")
+    }
+
+    build {
+        dependsOn(shadowJar)
+    }
 }
 
 publishing {
