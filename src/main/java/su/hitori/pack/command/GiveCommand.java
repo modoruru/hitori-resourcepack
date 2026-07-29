@@ -1,14 +1,16 @@
 package su.hitori.pack.command;
 
-import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
-import dev.jorel.commandapi.arguments.EntitySelectorArgument;
-import dev.jorel.commandapi.arguments.IntegerArgument;
-import dev.jorel.commandapi.arguments.NamespacedKeyArgument;
-import dev.jorel.commandapi.executors.CommandArguments;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.command.CommandSender;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import su.hitori.api.registry.Registry;
@@ -16,47 +18,54 @@ import su.hitori.api.util.Messages;
 import su.hitori.api.util.Text;
 import su.hitori.pack.type.item.CustomItem;
 
-public final class GiveCommand extends CommandAPICommand {
+public final class GiveCommand {
 
-    private final Registry<CustomItem> registry;
+    private GiveCommand() {}
 
-    public GiveCommand(Registry<CustomItem> registry) {
-        super("give");
-        this.registry = registry;
-
-        withArguments(new EntitySelectorArgument.OnePlayer("target"), new NamespacedKeyArgument("item").replaceSuggestions(ArgumentSuggestions.strings(
-                (_) -> registry.keys().stream().map(Key::asString).filter(string -> !string.startsWith("_")).toList().toArray(new String[0])
-        ))).withOptionalArguments(new IntegerArgument("amount", 0, 99));
-
-        executes(this::execute);
+    public static LiteralCommandNode<CommandSourceStack> bootstrap(Registry<CustomItem> registry) {
+        return Commands.literal("give")
+                .then(Commands.argument("target", ArgumentTypes.player())
+                        .then(Commands.argument("item", ArgumentTypes.namespacedKey())
+                                .suggests((_, builder) -> {
+                                    registry.keys().stream().map(Key::asString).filter(string -> !string.startsWith("_")).forEach(builder::suggest);
+                                    return builder.buildFuture();
+                                })
+                                .executes(context -> execute(registry, context, false))
+                                .then(Commands.argument("amount", IntegerArgumentType.integer(0, 99))
+                                        .executes(context -> execute(registry, context, true)))))
+                .build();
     }
 
-    private void execute(CommandSender sender, CommandArguments args) {
-        Player target = (Player) args.get("target");
-        String item = args.getRaw("item");
-        assert target != null && item != null;
+    private static int execute(Registry<CustomItem> registry, CommandContext<CommandSourceStack> context, boolean amount) throws CommandSyntaxException {
+        PlayerSelectorArgumentResolver targetResolver = context.getArgument("target", PlayerSelectorArgumentResolver.class);
+        Player target = targetResolver.resolve(context.getSource()).getFirst();
 
-        CustomItem customItem = registry.get(Key.key(item));
+        NamespacedKey item = context.getArgument("item", NamespacedKey.class);
+
+        CustomItem customItem = registry.get(item);
         if(customItem == null) {
-            sender.sendMessage(Text.create(String.format(
+            context.getSource().getSender().sendMessage(Text.create(String.format(
                     "<color:red><lang:argument.item.id.invalid:%s><br><gray>...%s</gray> <u>%s</u><italic><lang:command.context.here></color>",
-                    item,
+                    item.asString(),
                     target.getName(),
                     item
             )));
-            return;
+            return 0;
         }
 
         ItemStack instance = customItem.create();
 
-        if(args.get("amount") instanceof Integer integer) instance.setAmount(integer);
+        if(amount) instance.setAmount(context.getArgument("amount", Integer.class));
+
         target.getInventory().addItem(instance);
-        sender.sendMessage(Messages.INFO.translatable(
+
+        context.getSource().getSender().sendMessage(Messages.INFO.translatable(
                 "commands.give.success.single",
                 Component.text(instance.getAmount()),
                 instance.displayName(),
                 Component.text(target.getName())
         ));
+        return 1;
     }
 
 }

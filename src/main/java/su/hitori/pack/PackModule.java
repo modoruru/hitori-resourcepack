@@ -1,7 +1,11 @@
 package su.hitori.pack;
 
+import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.jspecify.annotations.Nullable;
+import su.hitori.api.configuration.ConfigurationSource;
+import su.hitori.api.configuration.HitoriConfiguration;
+import su.hitori.api.configuration.serializer.YAMLSerializer;
 import su.hitori.api.module.Module;
 import su.hitori.api.module.enable.EnableContext;
 import su.hitori.api.registry.Registry;
@@ -35,6 +39,8 @@ import java.util.concurrent.Executors;
 
 public final class PackModule extends Module {
 
+    private final PackConfiguration configuration;
+
     private @Nullable ExecutorService executorService;
     private @Nullable GeneratorImpl generator;
     private @Nullable PackServer packServer;
@@ -46,13 +52,21 @@ public final class PackModule extends Module {
 
     private @Nullable CoreProtectSupport coreProtectSupport;
 
+    public PackModule() {
+        configuration = new PackConfiguration();
+    }
+
     @Override
     public void enable(EnableContext context) {
-        new PackConfiguration(defaultConfig()).reload();
+        HitoriConfiguration<PackConfiguration> configuration = context.configurations().register(
+                Key.key("hitori:resourcepack"),
+                this.configuration,
+                ConfigurationSource.file(YAMLSerializer.INSTANCE, defaultConfig())
+        );
 
         executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         generator = new GeneratorImpl(this, folder().toFile());
-        packServer = new PackServer(generator);
+        packServer = new PackServer(configuration.access(), generator);
         builtInConveyors = new BuiltInConveyors(this);
         poseService = new PoseService();
 
@@ -63,13 +77,13 @@ public final class PackModule extends Module {
         levelService = new LevelService(this, combinedProtectionService, customBlockRegistry, customItemRegistry);
         textSupport = new TextSupport(builtInConveyors.access(BuiltInConveyors.GLYPH).get());
 
-        if(PackConfiguration.I.coreProtectSupport)
+        if(configuration.access().coreProtectSupport.get())
             coreProtectSupport = CoreProtectSupport.create(Bukkit.getPluginManager()).orElse(null);
 
         createSkinsRestorerSupport();
 
         context.listeners().register(
-                new PackListener(packServer),
+                new PackListener(configuration.access(), packServer),
                 new LevelServiceListener(levelService),
                 new CustomBlockListener(
                         customBlockRegistry,
@@ -84,11 +98,12 @@ public final class PackModule extends Module {
                 new LyingPoseListener(poseService),
                 new CrawlListener(poseService)
         );
+
         context.commands().register(
-                new PackCommand(this),
-                new SitCommand(this),
-                new LayCommand(poseService),
-                new CrawlCommand(poseService)
+                PackCommand.bootstrap(this),
+                SitCommand.bootstrap(this),
+                LayCommand.bootstrap(poseService),
+                CrawlCommand.bootstrap(poseService)
         );
 
         packServer.start();
@@ -101,7 +116,8 @@ public final class PackModule extends Module {
 
     private void createSkinsRestorerSupport() {
         if(Bukkit.getPluginManager().getPlugin("SkinsRestorer") == null) return;
-        new SkinsRestorerSupport(poseService).initialize();
+        assert poseService != null;
+        new SkinsRestorerSupport(configuration, poseService).initialize();
     }
 
     @Override

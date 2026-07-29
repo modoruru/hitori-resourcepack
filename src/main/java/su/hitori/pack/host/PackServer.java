@@ -24,11 +24,13 @@ public final class PackServer {
 
     private final Logger LOGGER = LoggerFactory.instance().create();
 
+    private final PackConfiguration configuration;
     private final Generator generator;
 
     private @Nullable HttpServer server;
 
-    public PackServer(Generator generator) {
+    public PackServer(PackConfiguration configuration, Generator generator) {
+        this.configuration = configuration;
         this.generator = generator;
     }
 
@@ -37,10 +39,10 @@ public final class PackServer {
     }
 
     public void start() {
-        if(server != null || !PackConfiguration.I.sendPack) return;
+        if(server != null || !configuration.sendPack.get()) return;
 
         try {
-            server = HttpServer.create(new InetSocketAddress(PackConfiguration.I.port), 0);
+            server = HttpServer.create(new InetSocketAddress(configuration.port.get()), 0);
             server.createContext("/pack", new ResourcePackHandler(generator));
             server.setExecutor(null);
             server.start();
@@ -68,7 +70,7 @@ public final class PackServer {
     }
 
     public URI getPackURI() {
-        return URI.create("http://" + PackConfiguration.I.publicIp + "/pack");
+        return URI.create("http://" + configuration.publicIp.get() + "/pack");
     }
 
     private record ResourcePackHandler(Generator generator) implements HttpHandler {

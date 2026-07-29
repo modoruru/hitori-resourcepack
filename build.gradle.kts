@@ -24,6 +24,10 @@ repositories {
         name = "jitpack"
     }
 
+    maven("https://repository.modoru.fun/releases") {
+        name = "modoruReleases"
+    }
+
     // for CoreProtectAPI
     maven("https://maven.playpro.com/") {
         name = "playpro-repo"
@@ -43,7 +47,7 @@ dependencies {
     paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 
-    compileOnly("com.github.modoruru:hitori:${property("hitori_version")}")
+    compileOnly("su.hitori:hitori:${property("hitori_version")}")
     compileOnly("net.coreprotect:coreprotect:23.2")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.16-SNAPSHOT")
     compileOnly("net.skinsrestorer:skinsrestorer-api:15.10.0")
@@ -66,12 +70,24 @@ tasks {
 }
 
 publishing {
+    repositories {
+        maven {
+            name = "modoruReleases"
+            url = uri("https://repository.modoru.fun/releases")
+
+            credentials {
+                username = System.getenv("REPOSILITE_USERNAME") ?: ""
+                password = System.getenv("REPOSILITE_TOKEN") ?: ""
+            }
+        }
+    }
+
     publications {
         create<MavenPublication>("maven") {
             artifactId = rootProject.name
             version = rootProject.version.toString()
 
-            artifact(tasks.named("jar"))
+            from(components["java"])
         }
     }
 }

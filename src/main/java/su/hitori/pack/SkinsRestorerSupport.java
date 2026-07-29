@@ -15,9 +15,11 @@ final class SkinsRestorerSupport {
 
     private static final Logger LOGGER = LoggerFactory.instance().create(SkinsRestorerSupport.class);
 
+    private final PackConfiguration configuration;
     private final PoseService poseService;
 
-    SkinsRestorerSupport(PoseService poseService) {
+    SkinsRestorerSupport(PackConfiguration configuration, PoseService poseService) {
+        this.configuration = configuration;
         this.poseService = poseService;
     }
 
@@ -29,7 +31,7 @@ final class SkinsRestorerSupport {
                 event -> {
                     Player player = event.getPlayer(Player.class);
                     if(poseService.getLyingPoseByRider(player) == null && poseService.getSeatPoseByRider(player) == null) return;
-                    player.sendMessage(Messages.ERROR.create(PackConfiguration.I.unableToApplySkin));
+                    player.sendMessage(Messages.ERROR.create(configuration.unableToApplySkin.get()));
                     event.setCancelled(true);
                 }
         );

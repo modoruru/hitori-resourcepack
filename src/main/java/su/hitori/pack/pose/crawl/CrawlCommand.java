@@ -1,24 +1,34 @@
 package su.hitori.pack.pose.crawl;
 
-import dev.jorel.commandapi.CommandAPICommand;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import org.bukkit.entity.Player;
 import su.hitori.pack.pose.PoseService;
 
-public final class CrawlCommand extends CommandAPICommand {
+public final class CrawlCommand {
 
-    public CrawlCommand(PoseService poseService) {
-        super("crawl");
-        executesPlayer((sender, args) -> {
-            CrawlPose crawlPose = poseService.getCrawlPoseByCrawling(sender);
-            if(crawlPose != null) {
-                poseService.removeCrawlPose(crawlPose);
-                return;
-            }
+    private CrawlCommand() {}
 
-            if(!sender.isValid() || !sender.isOnGround() || sender.getVehicle() != null || sender.isSleeping())
-                return;
+    public static LiteralCommandNode<CommandSourceStack> bootstrap(PoseService poseService) {
+        return Commands.literal("crawl")
+                .requires(source -> source.getSender() instanceof Player)
+                .executes(context -> {
+                    Player sender = (Player) context.getSource().getSender();
 
-            poseService.createCrawlPose(sender);
-        });
+                    CrawlPose crawlPose = poseService.getCrawlPoseByCrawling(sender);
+                    if(crawlPose != null) {
+                        poseService.removeCrawlPose(crawlPose);
+                        return 0;
+                    }
+
+                    if(!sender.isValid() || !sender.isOnGround() || sender.getVehicle() != null || sender.isSleeping())
+                        return 0;
+
+                    poseService.createCrawlPose(sender);
+
+                    return 1;
+                })
+                .build();
     }
-
 }
