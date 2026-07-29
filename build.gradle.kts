@@ -84,7 +84,7 @@ publishing {
 
     publications {
         create<MavenPublication>("maven") {
-            artifactId = rootProject.name
+            artifactId = "hitori-resourcepack"
             version = rootProject.version.toString()
 
             from(components["java"])
