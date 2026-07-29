@@ -87,7 +87,7 @@ publishing {
             artifactId = "hitori-resourcepack"
             version = rootProject.version.toString()
 
-            from(components["java"])
+            artifact(tasks.named("shadowJar"))
         }
     }
 }
