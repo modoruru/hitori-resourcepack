@@ -18,44 +18,39 @@
 
 После скачивания jar, просто поместите его в папку hitori. После, перезагрузите сервер.
 ## API
-Модуль опубликован через [JitPack](https://jitpack.io/)
-
-Последняя версия: [![](https://jitpack.io/v/modoruru/hitori-resourcepack.svg)](https://jitpack.io/#modoruru/hitori-resourcepack)
-
 <details>
 <summary>maven</summary>
 
 ```xml
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+<repository>
+  <id>modoru-releases</id>
+  <name>modoru repository</name>
+  <url>https://repository.modoru.fun/releases</url>
+</repository>
 ```
 
 ```xml
-	<dependency>
-	    <groupId>com.github.modoruru</groupId>
-	    <artifactId>hitori-resourcepack</artifactId>
-	    <version>version</version>
-	</dependency>
+<dependency>
+  <groupId>su.hitori</groupId>
+  <artifactId>hitori-resourcepack</artifactId>
+  <version>1.1.3</version>
+</dependency>
 ```
 </details>
 <details>
 <summary>gradle</summary>
 
 ```groovy
-repositories {
-    // ...
-    maven { url 'https://jitpack.io' }
+maven {
+  name = "modoruReleases"
+  url = uri("https://repository.modoru.fun/releases")
 }
 ```
 
 ```groovy
 dependencies {
     // ...
-    implementation 'com.github.modoruru:hitori-resourcepack:version'
+    implementation 'su.hitori:hitori-resourcepack:1.1.3'
 }
 ```
 </details>
