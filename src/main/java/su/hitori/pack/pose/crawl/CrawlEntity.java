@@ -1,7 +1,7 @@
 package su.hitori.pack.pose.crawl;
 
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.Shulker;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -9,7 +9,7 @@ import org.bukkit.craftbukkit.CraftWorld;
 final class CrawlEntity extends Shulker {
 
     public CrawlEntity(Location location) {
-        super(EntityType.SHULKER, ((CraftWorld) location.getWorld()).getHandle());
+        super(EntityTypes.SHULKER, ((CraftWorld) location.getWorld()).getHandle());
         setPos(location.x(), location.y(), location.z());
         persist = false;
         setInvisible(true);

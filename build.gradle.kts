@@ -1,11 +1,11 @@
 plugins {
     java
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21"
     id("maven-publish")
     id("com.gradleup.shadow") version "9.4.3"
 }
 
-val defaultJavaVersion = "23"
+val defaultJavaVersion = "25"
 
 java {
     toolchain {
@@ -44,12 +44,12 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("26.2.build.+")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
 
     compileOnly("su.hitori:hitori:${property("hitori_version")}")
     compileOnly("net.coreprotect:coreprotect:23.2")
-    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.16-SNAPSHOT")
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.19-SNAPSHOT")
     compileOnly("net.skinsrestorer:skinsrestorer-api:15.10.0")
 
     implementation("com.github.justlofe:FastBytes:${property("fastbytes_version")}")

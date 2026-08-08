@@ -189,7 +189,7 @@ public final class PlayerBlocksInjection extends ChannelInboundHandlerAdapter {
                             destroyPos.getZ() + .5,
                             (soundType.getVolume() + 1.0F) / 2.0F,
                             soundType.getPitch() * 0.8F,
-                            player.random.nextLong()
+                            player.getRandom().nextLong()
                     )
             );
 

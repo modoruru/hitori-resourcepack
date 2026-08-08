@@ -161,7 +161,7 @@ public final class LyingPose {
     private ClientboundBlockUpdatePacket createBedPacket(Direction direction) {
         return new ClientboundBlockUpdatePacket(
                 fakeBedBlockPos,
-                Blocks.WHITE_BED.defaultBlockState()
+                Blocks.BED.white().defaultBlockState()
                         .setValue(BedBlock.FACING, direction.getOpposite())
                         .setValue(BedBlock.PART, BedPart.HEAD)
         );
@@ -347,7 +347,7 @@ public final class LyingPose {
     }
 
     private void restorePlayerState() {
-        if (!serverPlayer.activeEffects.containsKey(MobEffects.INVISIBILITY)) {
+        if (!serverPlayer.getActiveEffectsMap().containsKey(MobEffects.INVISIBILITY)) {
             serverPlayer.setInvisible(false);
         }
 
@@ -437,7 +437,7 @@ public final class LyingPose {
     }
 
     private void updateSkin() {
-        npcPlayer.setInvisible(serverPlayer.activeEffects.containsKey(MobEffects.INVISIBILITY));
+        npcPlayer.setInvisible(serverPlayer.getActiveEffectsMap().containsKey(MobEffects.INVISIBILITY));
 
         SynchedEntityData npcData = npcPlayer.getEntityData();
         SynchedEntityData playerData = serverPlayer.getEntityData();
