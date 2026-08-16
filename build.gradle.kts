@@ -67,6 +67,12 @@ tasks {
     build {
         dependsOn(shadowJar)
     }
+
+    processResources {
+        filesMatching("hitori.properties") {
+            expand(mapOf("version" to project.version))
+        }
+    }
 }
 
 publishing {
