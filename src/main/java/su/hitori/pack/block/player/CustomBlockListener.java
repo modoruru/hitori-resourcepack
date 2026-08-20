@@ -201,7 +201,8 @@ public final class CustomBlockListener implements Listener {
     @EventHandler
     private void onBlockPlace(BlockPlaceEvent event) {
         ItemStack stack = event.getItemInHand();
-        if(stack.isEmpty()) return;
+        GameMode gameMode = event.getPlayer().getGameMode();
+        if(stack.isEmpty() || gameMode == GameMode.ADVENTURE || gameMode == GameMode.SPECTATOR) return;
 
         Optional<CustomItem> optionalCustomItem = CustomItem.getCustomItem(stack, itemRegistry);
         if(optionalCustomItem.isEmpty()) return;
@@ -278,7 +279,7 @@ public final class CustomBlockListener implements Listener {
 
     @EventHandler
     private void onEntityTarget(EntityDamageByEntityEvent event) {
-        if(event.getDamager() instanceof Player player && levelService.isHitboxEntity(event.getEntity())) {
+        if(event.getDamager() instanceof Player player && (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SURVIVAL) && levelService.isHitboxEntity(event.getEntity())) {
             levelService.removeCustomBlock(event.getEntity().getLocation().getBlock(), !player.getGameMode().isInvulnerable(), player);
         }
     }
