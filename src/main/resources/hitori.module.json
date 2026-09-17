@@ -1,0 +1,16 @@
+{
+  "key": "hitori:resourcepack",
+  "version": "$version",
+  "description": "Resource-pack generator and API",
+  "main": "su.hitori.pack.PackModule",
+
+  "packages": [
+    "su.hitori.pack",
+    "su.windmill.bytes"
+  ],
+
+  "depends": {
+    "java": ">=25",
+    "hitori": ">=2.0.0"
+  }
+}

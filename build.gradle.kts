@@ -69,7 +69,7 @@ tasks {
     }
 
     processResources {
-        filesMatching("hitori.properties") {
+        filesMatching("hitori.module.json") {
             expand(mapOf("version" to project.version))
         }
     }

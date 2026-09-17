@@ -45,7 +45,7 @@ final class TextSupport {
                                 if(!queue.hasNext()) return null;
                                 String firstPart = queue.pop().value();
                                 String secondPart = queue.hasNext() ? queue.peek().value() : null;
-                                return glyphRegistry.getOptional(secondPart == null ? Key.key(firstPart) : Key.key(firstPart, secondPart))
+                                return glyphRegistry.optional(secondPart == null ? Key.key(firstPart) : Key.key(firstPart, secondPart))
                                         .map(glyph -> Tag.selfClosingInserting(Component.text(glyph.getSymbol())))
                                         .orElse(null);
                             }
@@ -66,7 +66,7 @@ final class TextSupport {
             if (remainder >= value) {
                 remainder -= value;
                 builder.append(
-                        glyphRegistry.getOptional(Key.key((positiveOffset ? "shift_" : "neg_shift_") + value))
+                        glyphRegistry.optional(Key.key((positiveOffset ? "shift_" : "neg_shift_") + value))
                                 .map(Glyph::getSymbol)
                                 .orElse("")
                 );
