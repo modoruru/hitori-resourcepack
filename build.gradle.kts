@@ -1,3 +1,5 @@
+fun property(property: String): String = findProperty(property) as String
+
 plugins {
     java
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.21"
@@ -5,12 +7,11 @@ plugins {
     id("com.gradleup.shadow") version "9.4.3"
 }
 
-val defaultJavaVersion = "25"
-version = "${findProperty("version") as String}+${findProperty("minecraft_version") as String}"
+version = "${property("version")}+${property("minecraft_version")}"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of((property("java") ?: defaultJavaVersion) as String))
+        languageVersion.set(JavaLanguageVersion.of(property("java")))
     }
 }
 
@@ -45,8 +46,8 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("26.3.build.+")
-    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
+    paperweight.paperDevBundle("${property("minecraft_version")}.build.+")
+    compileOnly("io.papermc.paper:paper-api:${property("minecraft_version")}.build.+")
 
     compileOnly("su.hitori:hitori:${property("hitori_version")}")
     compileOnly("net.coreprotect:coreprotect:23.2")
