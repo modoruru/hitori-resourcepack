@@ -33,7 +33,7 @@
 <dependency>
   <groupId>su.hitori</groupId>
   <artifactId>hitori-resourcepack</artifactId>
-  <version>1.1.3</version>
+  <version>1.3.0+26.3</version>
 </dependency>
 ```
 </details>
@@ -50,7 +50,7 @@ maven {
 ```groovy
 dependencies {
     // ...
-    implementation 'su.hitori:hitori-resourcepack:1.1.3'
+    implementation 'su.hitori:hitori-resourcepack:1.3.0+26.3'
 }
 ```
 </details>
