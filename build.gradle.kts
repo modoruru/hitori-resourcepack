@@ -6,6 +6,7 @@ plugins {
 }
 
 val defaultJavaVersion = "25"
+version = "${findProperty("version") as String}+${findProperty("minecraft_version") as String}"
 
 java {
     toolchain {
@@ -44,7 +45,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("26.2.build.+")
+    paperweight.paperDevBundle("26.3.build.+")
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
 
     compileOnly("su.hitori:hitori:${property("hitori_version")}")

@@ -14,7 +14,7 @@ final class CrawlEntity extends Shulker {
         persist = false;
         setInvisible(true);
         setNoGravity(true);
-        setInvulnerable(true);
+        setPermanentlyInvulnerable(true);
         setNoAi(true);
         setSilent(true);
         setAttachFace(Direction.UP);

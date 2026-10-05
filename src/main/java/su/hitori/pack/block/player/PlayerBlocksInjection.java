@@ -76,9 +76,8 @@ public final class PlayerBlocksInjection extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
         if(msg instanceof ServerboundPlayerActionPacket action && action(action.getAction(), action.getPos())) return;
-        if(msg instanceof ServerboundSwingPacket) swing();
+        if(msg instanceof ServerboundPunchPacket) swing();
         if(msg instanceof ServerboundPickItemFromEntityPacket packet) Task.ensureSync(() -> pickItem(packet.id()));
 
         super.channelRead(ctx, msg);

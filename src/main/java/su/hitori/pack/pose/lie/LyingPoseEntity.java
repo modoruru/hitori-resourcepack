@@ -21,7 +21,7 @@ final class LyingPoseEntity extends AreaEffectCloud {
         setRadius(0);
         setDuration(Integer.MAX_VALUE);
         setNoGravity(true);
-        setInvulnerable(true);
+        setPermanentlyInvulnerable(true);
         addTag(PoseService.SEAT_TAG);
         try {
             vehicle = Entity.class.getDeclaredField("vehicle");
