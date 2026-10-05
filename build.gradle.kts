@@ -94,7 +94,7 @@ publishing {
         create<MavenPublication>("maven") {
             artifactId = "hitori-resourcepack"
             group = "su.hitori"
-            version = rootProject.version.toString()
+            version = project.version as String
 
             artifact(tasks.named("shadowJar"))
         }
