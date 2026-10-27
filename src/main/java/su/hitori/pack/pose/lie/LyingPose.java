@@ -35,8 +35,10 @@ import su.hitori.pack.pose.seat.SeatPose;
 import su.hitori.pack.pose.seat.SeatPoseEntity;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class LyingPose {
+
     private static final EntityDataAccessor<OptionalInt> LEFT_SHOULDER =
             EntityDataSerializers.OPTIONAL_UNSIGNED_INT.createAccessor(19);
     private static final EntityDataAccessor<OptionalInt> RIGHT_SHOULDER =
@@ -50,7 +52,6 @@ public final class LyingPose {
     private final Player player;
     private final ServerPlayer serverPlayer;
     private final ServerPlayer npcPlayer;
-    private final LyingPoseEntity hideNameEntity;
 
     private final Location fakeBedLocation;
     private final Block fakeBedBlock;
@@ -72,7 +73,7 @@ public final class LyingPose {
 
     public LyingPose(SeatPose seatPose) {
         this.seatPose = seatPose;
-        this.player = (Player) seatPose.getRider();
+        this.player = seatPose.getRider();
         this.serverPlayer = ((CraftPlayer) player).getHandle();
         this.renderRange = player.getWorld().getSimulationDistance() * 16;
 
@@ -89,7 +90,6 @@ public final class LyingPose {
 
         positionNPC();
         initializePackets();
-        this.hideNameEntity = new LyingPoseEntity(player.getLocation());
     }
 
     public void playAnimation(int animationId) {
@@ -183,37 +183,22 @@ public final class LyingPose {
     }
 
     public void create() {
-        nearbyPlayers = getNearbyPlayers();
-        syncPlayerState();
-        initializeNPCData();
-        createInitializationBundle();
-        setupViewers();
-        setupSeatUpdateTask();
-    }
+        nearbyPlayers = collectNearbyPlayers();
 
-    private void syncPlayerState() {
+        // sync state
         npcPlayer.setGlowingTag(serverPlayer.hasGlowingTag());
         if (serverPlayer.hasGlowingTag()) {
             serverPlayer.setGlowingTag(false);
         }
-    }
 
-    private void initializeNPCData() {
+        // initialize npc data
         SynchedEntityData npcData = npcPlayer.getEntityData();
         SynchedEntityData playerData = serverPlayer.getEntityData();
 
-        npcData.set(
-                EntityDataSerializers.POSE.createAccessor(6),
-                net.minecraft.world.entity.Pose.values()[org.bukkit.entity.Pose.SLEEPING.ordinal()]
-        );
-        npcData.set(
-                EntityDataSerializers.OPTIONAL_BLOCK_POS.createAccessor(14),
-                Optional.of(fakeBedBlockPos)
-        );
-
+        npcData.set(EntityDataSerializers.POSE.createAccessor(6), net.minecraft.world.entity.Pose.values()[org.bukkit.entity.Pose.SLEEPING.ordinal()]);
+        npcData.set(EntityDataSerializers.OPTIONAL_BLOCK_POS.createAccessor(14), Optional.of(fakeBedBlockPos));
         npcData.set(MAIN_HAND, playerData.get(MAIN_HAND));
         npcData.set(SKIN_PARTS, playerData.get(SKIN_PARTS));
-
         npcData.set(LEFT_SHOULDER, playerData.get(LEFT_SHOULDER));
         npcData.set(RIGHT_SHOULDER, playerData.get(RIGHT_SHOULDER));
 
@@ -222,9 +207,8 @@ public final class LyingPose {
 
         serverPlayer.setInvisible(true);
         updateEquipmentVisibility(false);
-    }
 
-    private void createInitializationBundle() {
+        // create initialization bundle
         ClientboundSetEntityDataPacket metaPacket = createEntityMetadataPacket();
         ClientboundUpdateAttributesPacket attributePacket = createAttributesPacket();
 
@@ -236,6 +220,65 @@ public final class LyingPose {
                 attributePacket,
                 teleportNpcPacket
         ));
+
+        // add viewers
+        for (Player viewer : nearbyPlayers) {
+            addViewer(viewer);
+        }
+
+        // setup seat update task
+        SeatPoseEntity seatEntity = (SeatPoseEntity) ((CraftEntity) seatPose.getSeatEntity()).getHandle();
+        seatEntity.tickFunction = () -> {
+            // update viewers
+            Set<Player> currentPlayers = collectNearbyPlayers();
+
+            for (Player newViewer : currentPlayers) {
+                if (!nearbyPlayers.contains(newViewer)) {
+                    nearbyPlayers.add(newViewer);
+                    addViewer(newViewer);
+                }
+            }
+
+            Iterator<Player> iterator = nearbyPlayers.iterator();
+            while (iterator.hasNext()) {
+                Player oldViewer = iterator.next();
+                if (!currentPlayers.contains(oldViewer)) {
+                    iterator.remove();
+                    removeViewer(oldViewer);
+                }
+            }
+
+            // maintain player state
+            if (!serverPlayer.isInvisible())
+                serverPlayer.setInvisible(true);
+
+            // update equipment
+            ItemStack mainHandItem = serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND);
+            if(!shouldSkipEquipmentUpdate(mainHandItem)) {
+                cacheEquipment(mainHandItem);
+                broadcastEquipmentUpdate();
+                serverPlayer.containerMenu.sendAllDataToRemote();
+            }
+
+            npcPlayer.setInvisible(serverPlayer.getActiveEffectsMap().containsKey(MobEffects.INVISIBILITY));
+
+            SynchedEntityData npcData0 = npcPlayer.getEntityData();
+            SynchedEntityData playerData0 = serverPlayer.getEntityData();
+
+            npcData0.set(MAIN_HAND, playerData0.get(MAIN_HAND));
+            npcData0.set(SKIN_PARTS, playerData0.get(SKIN_PARTS));
+
+            if (!npcData0.isDirty()) return;
+
+            ClientboundSetEntityDataPacket updatePacket = new ClientboundSetEntityDataPacket(
+                    npcPlayer.getId(),
+                    Optional.ofNullable(npcData0.packDirty()).orElseGet(List::of)
+            );
+
+            for (Player viewer : nearbyPlayers) {
+                sendPacket(viewer, updatePacket);
+            }
+        };
     }
 
     private ClientboundSetEntityDataPacket createEntityMetadataPacket() {
@@ -256,112 +299,28 @@ public final class LyingPose {
         );
     }
 
-    private void setupViewers() {
-        for (Player viewer : nearbyPlayers) {
-            addViewer(viewer);
-        }
-
-        attachHideNameEntity();
-    }
-
-    private void attachHideNameEntity() {
-        hideNameEntity.setVehicle(npcPlayer);
-
-        List<Packet<? super ClientGamePacketListener>> packets = new ArrayList<>();
-        packets.add(new ClientboundAddEntityPacket(
-                hideNameEntity.getId(),
-                hideNameEntity.getUUID(),
-                hideNameEntity.getX(),
-                hideNameEntity.getY(),
-                hideNameEntity.getZ(),
-                hideNameEntity.getXRot(),
-                hideNameEntity.getYRot(),
-                hideNameEntity.getType(),
-                0,
-                hideNameEntity.getDeltaMovement(),
-                hideNameEntity.getYHeadRot()
-        ));
-
-        packets.add(new ClientboundSetEntityDataPacket(
-                hideNameEntity.getId(),
-                Optional.ofNullable(hideNameEntity.getEntityData().getNonDefaultValues())
-                        .orElseGet(List::of)
-        ));
-
-        packets.add(new ClientboundSetPassengersPacket(npcPlayer));
-
-        sendPacket(player, new ClientboundBundlePacket(packets));
-    }
-
-    private void setupSeatUpdateTask() {
-        SeatPoseEntity seatEntity = (SeatPoseEntity) ((CraftEntity) seatPose.getSeatEntity()).getHandle();
-        seatEntity.runnable = () -> {
-            updateNearbyPlayers();
-            maintainPlayerState();
-            updateEquipment();
-            updateSkin();
-        };
-    }
-
-    private void updateNearbyPlayers() {
-        Set<Player> currentPlayers = getNearbyPlayers();
-
-        for (Player newViewer : currentPlayers) {
-            if (!nearbyPlayers.contains(newViewer)) {
-                nearbyPlayers.add(newViewer);
-                addViewer(newViewer);
-            }
-        }
-
-        Iterator<Player> iterator = nearbyPlayers.iterator();
-        while (iterator.hasNext()) {
-            Player oldViewer = iterator.next();
-            if (!currentPlayers.contains(oldViewer)) {
-                iterator.remove();
-                removeViewer(oldViewer);
-            }
-        }
-    }
-
-    private void maintainPlayerState() {
-        serverPlayer.setInvisible(true);
-        updateEquipmentVisibility(false);
-    }
-
     public void remove() {
-        stopSeatUpdates();
-        cleanupViewers();
-        restorePlayerState();
-    }
-
-    private void stopSeatUpdates() {
+        // stop updates
         SeatPoseEntity seatEntity = (SeatPoseEntity) ((CraftEntity) seatPose.getSeatEntity()).getHandle();
-        seatEntity.runnable = null;
-    }
+        seatEntity.tickFunction = null;
 
-    private void cleanupViewers() {
+        // remove viewers
         for (Player viewer : nearbyPlayers) {
             removeViewer(viewer);
         }
-        sendPacket(player, new ClientboundRemoveEntitiesPacket(hideNameEntity.getId()));
-    }
 
-    private void restorePlayerState() {
+        // restore player state
         if (!serverPlayer.getActiveEffectsMap().containsKey(MobEffects.INVISIBILITY)) {
             serverPlayer.setInvisible(false);
         }
 
         updateEquipmentVisibility(true);
-        restoreShoulderData();
-        serverPlayer.setGlowingTag(npcPlayer.hasGlowingTag());
-    }
 
-    private void restoreShoulderData() {
         SynchedEntityData npcData = npcPlayer.getEntityData();
         SynchedEntityData playerData = serverPlayer.getEntityData();
-
         playerData.set(LEFT_SHOULDER, npcData.get(LEFT_SHOULDER));
         playerData.set(RIGHT_SHOULDER, npcData.get(RIGHT_SHOULDER));
+        serverPlayer.setGlowingTag(npcPlayer.hasGlowingTag());
     }
 
     private void addViewer(Player viewer) {
@@ -371,7 +330,7 @@ public final class LyingPose {
         if (height < 1) return;
 
         Task.runEntity(viewer, () -> sendPacket(viewer, teleportNpcPacket), 1L);
-        Task.runEntity(viewer, () -> sendPacket(viewer, teleportNpcPacket), 2L);
+        Task.runEntity(viewer, () -> sendPacket(viewer, teleportNpcPacket), 3L);
     }
 
     private void removeViewer(Player viewer) {
@@ -394,18 +353,6 @@ public final class LyingPose {
         for (Player viewer : nearbyPlayers) {
             sendPacket(viewer, equipmentPacket);
         }
-    }
-
-    private void updateEquipment() {
-        ItemStack mainHandItem = serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND);
-
-        if (shouldSkipEquipmentUpdate(mainHandItem)) {
-            return;
-        }
-
-        cacheEquipment(mainHandItem);
-        broadcastEquipmentUpdate();
-        serverPlayer.containerMenu.sendAllDataToRemote();
     }
 
     private boolean shouldSkipEquipmentUpdate(ItemStack mainHandItem) {
@@ -436,34 +383,11 @@ public final class LyingPose {
         }
     }
 
-    private void updateSkin() {
-        npcPlayer.setInvisible(serverPlayer.getActiveEffectsMap().containsKey(MobEffects.INVISIBILITY));
-
-        SynchedEntityData npcData = npcPlayer.getEntityData();
-        SynchedEntityData playerData = serverPlayer.getEntityData();
-
-        npcData.set(MAIN_HAND, playerData.get(MAIN_HAND));
-        npcData.set(SKIN_PARTS, playerData.get(SKIN_PARTS));
-
-        if (!npcData.isDirty()) return;
-
-        ClientboundSetEntityDataPacket updatePacket = new ClientboundSetEntityDataPacket(
-                npcPlayer.getId(),
-                Optional.ofNullable(npcData.packDirty()).orElseGet(List::of)
-        );
-
-        for (Player viewer : nearbyPlayers) {
-            sendPacket(viewer, updatePacket);
-        }
-    }
-
-    private Set<Player> getNearbyPlayers() {
-        Set<Player> viewers = new HashSet<>();
-        player.getWorld().getPlayers().stream()
-                .filter(p -> seatPose.getLocation().distance(p.getLocation()) <= renderRange
-                        && p.canSee(this.player))
-                .forEach(viewers::add);
-        return viewers;
+    private Set<Player> collectNearbyPlayers() {
+        return player.getWorld().getPlayers()
+                .stream()
+                .filter(p -> seatPose.getLocation().distance(p.getLocation()) <= renderRange && p.canSee(this.player))
+                .collect(Collectors.toSet());
     }
 
     private Direction calculateDirection() {

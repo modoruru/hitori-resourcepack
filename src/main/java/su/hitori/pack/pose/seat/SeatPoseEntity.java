@@ -15,7 +15,7 @@ import su.hitori.pack.pose.PoseService;
 public final class SeatPoseEntity extends ArmorStand {
 
     private boolean rotate;
-    public @Nullable Runnable runnable;
+    public @Nullable Runnable tickFunction;
 
     public SeatPoseEntity(Location location) {
         super(
@@ -45,7 +45,7 @@ public final class SeatPoseEntity extends ArmorStand {
 
     @Override
     public void tick() {
-        if(runnable != null) runnable.run();
+        if(tickFunction != null) tickFunction.run();
         if(!isAlive() || !valid || !rotate) return;
         Entity rider = getFirstPassenger();
         if(rider == null) return;
