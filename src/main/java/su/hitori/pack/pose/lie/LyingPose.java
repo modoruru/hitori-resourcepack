@@ -251,6 +251,7 @@ public final class LyingPose {
             // maintain player state
             if (!serverPlayer.isInvisible())
                 serverPlayer.setInvisible(true);
+            updateEquipmentVisibility(false);
 
             // update equipment
             ItemStack mainHandItem = serverPlayer.getItemBySlot(EquipmentSlot.MAINHAND);
@@ -347,8 +348,7 @@ public final class LyingPose {
             equipment.add(Pair.of(slot, item != null ? item : ItemStack.EMPTY));
         }
 
-        ClientboundSetEquipmentPacket equipmentPacket =
-                new ClientboundSetEquipmentPacket(serverPlayer.getId(), equipment);
+        ClientboundSetEquipmentPacket equipmentPacket = new ClientboundSetEquipmentPacket(serverPlayer.getId(), equipment);
 
         for (Player viewer : nearbyPlayers) {
             sendPacket(viewer, equipmentPacket);
