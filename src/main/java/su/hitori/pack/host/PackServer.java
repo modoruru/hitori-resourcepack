@@ -3,11 +3,17 @@ package su.hitori.pack.host;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import net.kyori.adventure.resource.ResourcePackInfo;
+import net.kyori.adventure.resource.ResourcePackRequest;
+import net.kyori.adventure.resource.ResourcePackStatus;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import su.hitori.api.Pair;
 import su.hitori.api.logging.LoggerFactory;
 import su.hitori.api.util.LoggerUtil;
+import su.hitori.api.util.Text;
 import su.hitori.pack.PackConfiguration;
 import su.hitori.pack.generation.Generator;
 
@@ -17,7 +23,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public final class PackServer {
@@ -59,14 +67,46 @@ public final class PackServer {
         }
     }
 
-    public void sendPack(Player player) {
-        if(server == null || generator.isGenerating())
-            return;
+    /**
+     * @return kick message
+     */
+    public @Nullable Component createKickMessage(ResourcePackStatus status) {
+        return switch (status) {
+            case DECLINED, DISCARDED ->
+                    configuration.requirePack.get()
+                            ? Text.create(configuration.allowResourcepackToPlay.get())
+                            : null;
+            case FAILED_DOWNLOAD, INVALID_URL, FAILED_RELOAD -> Text.create(configuration.errorInstallingResourcepack.get());
+            default -> null;
+        };
+    }
 
-        Optional<Pair<File, String>> pack = generator.getResult();
-        assert pack.isPresent();
-        String hash = pack.get().second();
-        player.setResourcePack(getPackURI().toString(), hash, true);
+    public Optional<ResourcePackInfo> createInfo() {
+        return generator.getResult()
+                .map(pair -> {
+                    URI uri = getPackURI();
+
+                    return ResourcePackInfo.resourcePackInfo(
+                            UUID.nameUUIDFromBytes(uri.toString().getBytes(StandardCharsets.UTF_8)),
+                            uri,
+                            pair.second()
+                    );
+                });
+    }
+
+    public void sendPackForEveryone() {
+        createInfo().ifPresent(info -> {
+            ResourcePackRequest request = ResourcePackRequest.resourcePackRequest()
+                    .replace(true)
+                    .required(true)
+                    .packs(info)
+                    .callback((_, status, audience) -> {
+                        Component kickMessage = createKickMessage(status);
+                        if(kickMessage != null) ((Player) audience).kick(kickMessage);
+                    })
+                    .build();
+            Bukkit.getOnlinePlayers().forEach(player -> player.sendResourcePacks(request));
+        });
     }
 
     public URI getPackURI() {

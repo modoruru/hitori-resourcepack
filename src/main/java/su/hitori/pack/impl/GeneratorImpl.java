@@ -3,7 +3,6 @@ package su.hitori.pack.impl;
 import io.papermc.paper.ServerBuildInfo;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.bukkit.Bukkit;
 import org.json.JSONObject;
 import org.jspecify.annotations.Nullable;
 import su.hitori.api.Pair;
@@ -122,7 +121,7 @@ public final class GeneratorImpl implements Generator {
 
         LOGGER.info(String.format("Done! Pack generated in %.3fs", (System.currentTimeMillis() - start) * 0.001));
 
-        Bukkit.getOnlinePlayers().forEach(packModule.packServer()::sendPack);
+        packModule.packServer().sendPackForEveryone();
     }
 
     private void createMetaFile(File folder) {
